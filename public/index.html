@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVX Intelligence | Diagnóstico de Madurez Digital</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #8b5cf6;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #10b981;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; text-align: center; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.subtitle { text-align: center; color: var(--text-dim); margin-bottom: 32px; font-size: 16px; }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: var(--text-dim); }
+        
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5); }
+
+        .option-card {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--border);
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            color: var(--text-main);
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .option-card:hover { background: rgba(99, 102, 241, 0.15); border-color: var(--primary); }
+
+        .progress-container { width: 100%; height: 6px; background: var(--border); border-radius: 10px; margin-bottom: 32px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); transition: width 0.4s ease; }
+
+        .result-header { text-align: center; margin-bottom: 30px; }
+        .score-display { font-size: 72px; font-weight: 800; color: var(--primary); line-height: 1; margin: 20px 0; }
+        
+        .recommendation {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 24px;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+            margin-top: 24px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="quiz-app">
+        <div id="step-1">
+            <h1>LEVX Intelligence</h1>
+            <p class="subtitle">Diagnóstico de Madurez y Escalabilidad Digital</p>
+            <div class="input-group">
+                <label>Nombre Profesional</label>
+                <input type="text" id="user-name" placeholder="Ej. Luciano Von-Arx">
+            </div>
+            <div class="input-group">
+                <label>Empresa / Proyecto</label>
+                <input type="text" id="user-company" placeholder="Ej. Fadua Salta">
+            </div>
+            <button class="btn-primary" onclick="startQuiz()">Iniciar Diagnóstico Especializado</button>
+        </div>
+
+        <div id="step-2" class="hidden">
+            <div class="progress-container"><div class="progress-bar" id="bar"></div></div>
+            <h2 id="q-text" style="margin-bottom: 24px; font-size: 20px;"></h2>
+            <div id="options"></div>
+        </div>
+
+        <div id="step-3" class="hidden">
+            <div id="capture-area">
+                <div class="result-header">
+                    <h2 style="color: var(--primary)">Análisis Finalizado</h2>
+                    <p id="client-tag" style="color: var(--text-dim)"></p>
+                    <div class="score-display" id="final-score">0%</div>
+                    <p id="status-label" style="font-weight: 700; font-size: 18px;"></p>
+                </div>
+                <div class="recommendation" id="rec-text"></div>
+            </div>
+            <button class="btn-primary" style="margin-top: 30px; background: var(--success);" onclick="downloadReport()">Descargar Reporte Estratégico (PDF)</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "¿Qué tan automatizado está tu proceso de captación de leads?", options: [{t:"Dependo de referidos o manual", s:0}, {t:"Tengo campañas pero califico manual", s:10}, {t:"Proceso 100% automatizado y calificado", s:20}] },
+            { q: "¿Utilizas un CRM para gestionar el cierre y follow-up?", options: [{t:"No utilizo CRM", s:0}, {t:"Lo tengo pero no lo exploto", s:10}, {t:"Es el corazón de mi operación", s:20}] },
+            { q: "¿Cuentas con guiones de venta estructurados (Straight Line)?", options: [{t:"Venta intuitiva", s:0}, {t:"Tengo algunas bases", s:10}, {t:"Metodología aplicada y medida", s:20}] },
+            { q: "¿Mides el Costo de Adquisición (CAC) y el Valor de Vida del Cliente?", options: [{t:"No lo mido", s:0}, {t:"Tengo una idea vaga", s:10}, {t:"Métricas exactas en dashboard", s:20}] },
+            { q: "¿Tu infraestructura permite duplicar el volumen de ventas hoy?", options: [{t:"Colapsaría de inmediato", s:0}, {t:"Podría con esfuerzo manual", s:10}, {t:"Infraestructura escalable lista", s:20}] }
+        ];
+
+        let idx = 0, score = 0, name = "", company = "";
+
+        function startQuiz() {
+            name = document.getElementById('user-name').value;
+            company = document.getElementById('user-company').value;
+            if(!name || !company) return alert("Por favor completa los datos para el reporte.");
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            renderQ();
+        }
+
+        function renderQ() {
+            const q = questions[idx];
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('bar').style.width = (idx / questions.length * 100) + "%";
+            const optDiv = document.getElementById('options');
+            optDiv.innerHTML = "";
+            q.options.forEach(o => {
+                const b = document.createElement('button');
+                b.className = "option-card";
+                b.innerText = o.t;
+                b.onclick = () => { score += o.s; idx++; if(idx < questions.length) renderQ(); else showFinal(); };
+                optDiv.appendChild(b);
+            });
+        }
+
+        function showFinal() {
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.remove('hidden');
+            document.getElementById('client-tag').innerText = `${name} | ${company}`;
+            document.getElementById('final-score').innerText = score + "%";
+            
+            const label = document.getElementById('status-label');
+            const rec = document.getElementById('rec-text');
+            
+            if(score <= 40) { label.innerText = "RIESGO DE ESTANCAMIENTO"; rec.innerText = "Tu modelo depende críticamente del esfuerzo manual. Sin automatización, cualquier intento de escala resultará en colapso operativo."; }
+            else if(score <= 70) { label.innerText = "POTENCIAL DE ESCALABILIDAD"; rec.innerText = "Tienes bases sólidas. El foco debe estar en refinar la conversión y automatizar el seguimiento para liberar tiempo de cierre."; }
+            else { label.innerText = "ESTRUCTURA DE ALTA EFICIENCIA"; rec.innerText = "Tu madurez es óptima. La oportunidad reside en la optimización de datos avanzada y expansión de canales."; }
+        }
+
+        async function downloadReport() {
+            const { jsPDF } = window.jspdf;
+            const area = document.getElementById('capture-area');
+            const canvas = await html2canvas(area, { backgroundColor: '#1e293b', scale: 2 });
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, 0);
+            pdf.save(`LEVX_Reporte_${name}.pdf`);
+        }
+    </script>
+</body>
+</html>
