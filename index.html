@@ -939,9 +939,9 @@ footer{background:var(--ink-1);border-top:1px solid var(--border-s);padding:36px
             <div class="q-conf-lead-meta" id="q-conf-meta"></div>
           </div>
         </div>
-        <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);text-align:center">
-          <button onclick="qAbrirAdmin()" style="background:rgba(76,142,240,.08);border:1px solid rgba(76,142,240,.18);color:#4C8EF0;border-radius:8px;padding:10px 20px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.06em;text-transform:uppercase">Ver panel de consultas</button>
-        </div>
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);text-align:center">
+        <span onclick="qCheckAdminAccess()" style="font-size:10px;color:#3A506E;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.04em">·</span>
+      </div>
       </div>
     </div>
 
@@ -1121,6 +1121,37 @@ let qFi=0, qPi=0, qResp={}
 const qTotalPregs = Q_FASES.reduce((s,f)=>s+f.preguntas.length,0)
 let Q_LEADS=[]
 
+const SUPA_URL='https://gqhnbiwibwzwpxdxshbk.supabase.co'
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxaG5iaXdpYnd6d3B4ZHhzaGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwODk0OTIsImV4cCI6MjA4ODY2NTQ5Mn0.v3kQ-7yPxGLWk3-yvRT6pnDm-4X55Ynk7Iqen38hDvg'
+
+async function supaInsert(lead){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/leads`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({nombre:lead.nombre,empresa:lead.empresa,tel:lead.tel,tier:lead.tier,pct:lead.pct,seg:lead.seg,resp:lead.resp,fecha:lead.fecha})
+    })
+  }catch(e){console.warn('Supabase error:',e)}
+}
+
+async function supaGetLeads(){
+  try{
+    const r=await fetch(`${SUPA_URL}/rest/v1/leads?order=fecha.desc`,{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    })
+    return await r.json()
+  }catch(e){console.warn('Supabase error:',e);return Q_LEADS}
+}
+
+async function supaDeleteAll(){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/leads?id=gte.0`,{
+      method:'DELETE',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    })
+  }catch(e){console.warn('Supabase error:',e)}
+}
+
 function qShow(id){
   document.querySelectorAll('.qscreen').forEach(s=>s.classList.remove('active'))
   const el=document.getElementById('qscreen-'+id)
@@ -1236,11 +1267,17 @@ function qConfirmar(){
   const res=qCalcTier()
   const lead={id:Date.now(),nombre,empresa,tel,resp:{...qResp},tier:res.tier,pct:res.pct,seg:res.seg,fecha:new Date().toISOString()}
   Q_LEADS.push(lead)
+  supaInsert(lead)
   document.getElementById('q-conf-name').textContent=nombre+' · '+empresa
   document.getElementById('q-conf-meta').textContent='Número: '+tel+' · Resultado: '+Q_RESULTADOS[res.tier].tier
   qShow('confirm')
   document.getElementById('quiz-pbar').style.display='none'
   document.getElementById('quiz-subnav').style.display='none'
+}
+
+function qCheckAdminAccess(){
+  const clave=prompt('Clave de acceso:')
+  if(clave==='levx2026')qAbrirAdmin()
 }
 
 function qAbrirAdmin(){
@@ -1254,11 +1291,13 @@ function qAbrirAdmin(){
   qRenderAdmin()
 }
 
-function qLimpiarLeads(){if(confirm('¿Eliminar todos los registros?')){Q_LEADS=[];qRenderAdmin()}}
+function qLimpiarLeads(){if(confirm('¿Eliminar todos los registros?')){supaDeleteAll();Q_LEADS=[];qRenderAdmin()}}
 
-function qRenderAdmin(){
+async function qRenderAdmin(){
   const list=document.getElementById('q-leads-list')
-  const leads=[...Q_LEADS].reverse()
+  list.innerHTML='<div class="q-lead-empty" style="color:#4C8EF0">Cargando consultas...</div>'
+  const leads=await supaGetLeads()
+  Q_LEADS=leads
   if(leads.length===0){list.innerHTML='<div class="q-lead-empty">No hay consultas registradas todavía.</div>';return}
   list.innerHTML=leads.map(l=>{
     const R=Q_RESULTADOS[l.tier]
