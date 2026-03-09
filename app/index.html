@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Diagnóstico Digital | LEVX Intelligence</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        h1, h2 { margin-bottom: 20px; text-align: center; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: white;
+            font-size: 16px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 14px;
+            background: #334155;
+            border: 1px solid var(--border);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .option-btn:hover {
+            background: var(--primary);
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .hidden { display: none; }
+
+        #progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .score-circle {
+            font-size: 54px;
+            font-weight: 800;
+            text-align: center;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .recommendations-box {
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-box">
+        <div id="setup-step">
+            <h1 style="color: #818cf8;">Diagnóstico de Madurez Digital</h1>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 25px;">Analiza tu situación actual y recibe un reporte estratégico personalizado.</p>
+            <input type="text" id="client-name" placeholder="Tu Nombre y Apellido">
+            <input type="text" id="company-name" placeholder="Nombre de tu Empresa/Proyecto">
+            <button onclick="startQuiz()" class="option-btn" style="text-align: center; background: var(--primary); font-weight: bold;">Comenzar Diagnóstico</button>
+        </div>
+
+        <div id="quiz-step" class="hidden">
+            <div id="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <h2 id="question-text"></h2>
+            <div id="options-container"></div>
+        </div>
+
+        <div id="result-step" class="hidden">
+            <div id="report-content" class="result-card">
+                <h2 style="color: #818cf8; margin-bottom: 5px;">Reporte Estratégico LEVX</h2>
+                <p id="res-client-info" style="text-align: center; color: var(--text-muted); margin-bottom: 15px;"></p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin-bottom: 20px;">
+                
+                <div class="score-circle" id="final-score">0</div>
+                <p id="score-label" style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 20px;"></p>
+                
+                <div id="rec-container" class="recommendations-box"></div>
+            </div>
+            <button onclick="generatePDF()" class="option-btn" style="text-align: center; background: var(--success); font-weight: bold; margin-top: 20px; border: none;">Descargar Reporte en PDF</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Cuentas con un sistema automatizado para captar y calificar nuevos prospectos?",
+                options: [
+                    { t: "No, todo es manual o por recomendaciones", s: 0 },
+                    { t: "Tengo redes sociales pero no un flujo claro", s: 10 },
+                    { t: "Uso CRM y algunas automatizaciones básicas", s: 20 }
+                ]
+            },
+            {
+                q: "¿Qué tan optimizada está tu presencia en Google y buscadores?",
+                options: [
+                    { t: "Inexistente o desactualizada", s: 0 },
+                    { t: "Tengo ficha de Google pero sin estrategia", s: 10 },
+                    { t: "Tengo SEO/SEM activo y mido resultados", s: 20 }
+                ]
+            },
+            {
+                q: "¿Realizas seguimiento sistemático de tus prospectos (Follow-up)?",
+                options: [
+                    { t: "Solo cuando me acuerdo", s: 0 },
+                    { t: "Uso hojas de cálculo o recordatorios", s: 10 },
+                    { t: "Tengo un sistema de 'Closer' con pasos definidos", s: 20 }
+                ]
+            },
+            {
+                q: "¿Mides el retorno de inversión (ROI) de tus esfuerzos de marketing?",
+                options: [
+                    { t: "No tengo idea de cuánto gano por cada peso invertido", s: 0 },
+                    { t: "Lo calculo de forma aproximada a fin de mes", s: 10 },
+                    { t: "Tengo un dashboard (Looker Studio/Excel) en tiempo real", s: 20 }
+                ]
+            },
+            {
+                q: "¿Tu equipo de ventas usa guiones y metodologías de persuasión (Straight Line)?",
+                options: [
+                    { t: "No, cada uno vende como puede", s: 0 },
+                    { t: "Tenemos algunos guiones pero no se siguen siempre", s: 10 },
+                    { t: "Estamos entrenados en cierres de alta eficacia", s: 20 }
+                ]
+            }
+        ];
+
+        let currentIdx = 0;
+        let totalScore = 0;
+        let userData = { name: '', company: '' };
+
+        function startQuiz() {
+            userData.name = document.getElementById('client-name').value;
+            userData.company = document.getElementById('company-name').value;
+
+            if (!userData.name) {
+                alert("Por favor, ingresa tu nombre para personalizar el reporte.");
+                return;
+            }
+
+            document.getElementById('setup-step').classList.add('hidden');
+            document.getElementById('quiz-step').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentIdx];
+            document.getElementById('question-text').innerText = q.q;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            // Barra de progreso
+            const progress = ((currentIdx) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + "%";
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.t;
+                btn.onclick = () => next(opt.s);
+                container.appendChild(btn);
+            });
+        }
+
+        function next(score) {
+            totalScore += score;
+            currentIdx++;
+
+            if (currentIdx < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-step').classList.add('hidden');
+            document.getElementById('result-step').classList.remove('hidden');
+
+            document.getElementById('res-client-info').innerText = `${userData.name} | ${userData.company}`;
+            document.getElementById('final-score').innerText = totalScore + "%";
+
+            const label = document.getElementById('score-label');
+            const rec = document.getElementById('rec-container');
+
+            if (totalScore <= 30) {
+                label.innerText = "Nivel: Inicial / Crítico";
+                rec.innerHTML = "<strong>Prioridad:</strong> Necesitas digitalizar tus procesos básicos. Tu captación de clientes depende demasiado del azar.";
+            } else if (totalScore <= 70) {
+                label.innerText = "Nivel: En Crecimiento";
+                rec.innerHTML = "<strong>Prioridad:</strong> Tienes bases sólidas pero falta automatización y optimización del cierre para escalar.";
+            } else {
+                label.innerText = "Nivel: Avanzado / Élite";
+                rec.innerHTML = "<strong>Prioridad:</strong> Estás en el camino correcto. El siguiente paso es escalar mediante inteligencia de datos avanzada.";
+            }
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const report = document.getElementById('report-content');
+            
+            try {
+                const canvas = await html2canvas(report, {
+                    backgroundColor: '#1e293b',
+                    scale: 2
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+                pdf.save(`Diagnostico_LEVX_${userData.name}.pdf`);
+            } catch (err) {
+                console.error("Error al generar PDF:", err);
+                alert("Hubo un problema al generar el PDF. Por favor intenta de nuevo.");
+            }
+        }
+    </script>
+</body>
+</html>
