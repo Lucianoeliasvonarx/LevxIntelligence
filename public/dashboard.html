@@ -552,7 +552,7 @@ async function loadLeads(){
         <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--xs)">${f}</div>
         <div style="display:flex;gap:7px">
           <button class="btn-pdf" onclick='pdfLead(${JSON.stringify(l)})'><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
-          <button class="btn-wa" onclick="sendWA('${(l.tel||'').replace(/\D/g,'')}','${l.nombre}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>WA</button>
+          <button class="btn-wa" onclick="sendWA('${(l.tel||'').replace(/\D/g,'')}','${l.nombre}','lead')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>WA</button>
         </div>
       </div>`
     }).join('')
@@ -647,10 +647,15 @@ function mkChart(id,type,data,opts={}){
   charts[id]=new Chart(document.getElementById(id),{type,data,options:co})
 }
 
-function sendWA(tel,nombre){
+function sendWA(tel,nombre,tipo){
   const num=(tel||'').replace(/\D/g,'')||'5493853142987'
-  const msg=encodeURIComponent(`Hola ${nombre}, soy Luciano de Levx Intelligence.\n\nPasamos a recordarte que no hemos recibido los datos de hoy en InsightPilot. ¿Podés cargarlos cuando tengas un momento?\n\nAny consulta, acá estamos.`)
-  window.open(`https://wa.me/${num}?text=${msg}`,'_blank')
+  let msg
+  if(tipo==='lead'){
+    msg=`Hola ${nombre}, buenos días.\n\nMi nombre es Luciano Elias, soy director de *Levx Intelligence*.\n\nCompletaste nuestro diagnóstico en levxintelligence.com y quería comunicarme personalmente para compartirte los resultados y conversar sobre el potencial de tu negocio.\n\nTe adjunto el informe de diagnóstico. En base a lo que respondiste, identificamos oportunidades concretas que podríamos trabajar juntos.\n\n¿Tenés 15 minutos esta semana para una videollamada? Sin compromiso, solo para entender tu situación en profundidad.\n\nQuedo a disposición.`
+  } else {
+    msg=`Hola ${nombre}, buenos días.\n\nSoy Luciano de *Levx Intelligence*. Pasamos a recordarte que no registramos carga de datos en InsightPilot el día de hoy.\n\nPara mantener tu análisis actualizado, te pedimos que ingreses la información cuando tengas un momento.\n\nCualquier inconveniente estamos disponibles. ¡Gracias!`
+  }
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`,'_blank')
 }
 
 function notif(msg,type){
@@ -671,13 +676,20 @@ function pdfLead(l){
   const c=TC[l.tier]||'#4C8EF0',R=TN[l.tier]||l.tier
   const f=new Date(l.fecha||Date.now()).toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})
   const LOGO=`<svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>`
-  const w=window.open('','_blank','width=860,height=900')
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Diagnóstico ${l.empresa}</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Diagnóstico ${l.empresa}</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;900&family=DM+Sans:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>*{box-sizing:border-box;margin:0;padding:0}body{background:#060E1A;color:#E8EEF8;font-family:'DM Sans',sans-serif;padding:40px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .pbtn{position:fixed;top:20px;right:20px;background:#2D42CC;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
-  @media print{.pbtn{display:none}}</style></head><body>
-  <button class="pbtn" onclick="window.print()">Imprimir / Guardar PDF</button>
+  .dl-btn{position:fixed;top:20px;right:20px;background:#0DB87A;color:#fff;border:none;padding:11px 22px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(13,184,122,.35)}
+  .dl-btn:hover{background:#0aa368}
+  .dl-btn svg{flex-shrink:0}
+  .dl-btn.loading{opacity:.7;pointer-events:none}
+  </style></head><body>
+  <button class="dl-btn" id="dlbtn" onclick="descargar()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Descargar PDF
+  </button>
+  <div id="pdf-content">
   <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:28px">
     <div style="display:flex;align-items:center;gap:12px">${LOGO}<div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:900;color:#fff">InsightPilot</div><div style="font-size:10px;color:#3A506E">by Levx Intelligence</div></div></div>
     <div style="text-align:right"><div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em">Diagnóstico SPIN</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:#3A506E;margin-top:3px">${f}</div></div>
@@ -693,15 +705,28 @@ function pdfLead(l){
       <div style="background:rgba(255,255,255,.06);color:#7A90B4;padding:4px 12px;border-radius:99px;font-size:10px">Segmento: ${({startup:'Startup',pyme:'PyME',mediana:'Mediana',grande:'Grande'})[l.seg]||l.seg}</div>
     </div>
   </div>
-  <div style="background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px">
+  <div style="background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px;margin-bottom:20px">
     <div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:14px">Diagnóstico SPIN — respuestas</div>
     ${Object.entries(l.resp||{}).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px"><span style="color:#7A90B4">${k.toUpperCase()}</span><span style="font-weight:600">${v}</span></div>`).join('')}
   </div>
-  <div style="margin-top:24px;background:#091425;border:1px solid rgba(76,142,240,.2);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between">
-    <div><div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:4px">Siguiente paso</div><div style="font-size:12px;color:#7A90B4">Contactar por WhatsApp para agendar videollamada de 15 minutos</div></div>
+  <div style="background:#091425;border:1px solid rgba(76,142,240,.2);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:4px">Siguiente paso</div><div style="font-size:12px;color:#7A90B4">Te contactamos para agendar una videollamada de 15 minutos</div></div>
     <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#4C8EF0">+54 9 385 314 2987</div>
   </div>
-  </body></html>`)
+  </div>
+  <script>
+  function descargar(){
+    const btn=document.getElementById('dlbtn')
+    btn.textContent='Generando...'
+    btn.classList.add('loading')
+    const opt={margin:[10,10,10,10],filename:'Diagnostico_${(l.empresa||'InsightPilot').replace(/\s+/g,'_')}.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,backgroundColor:'#060E1A',useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}
+    html2pdf().set(opt).from(document.getElementById('pdf-content')).save().then(()=>{btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Descargado';btn.classList.remove('loading')})
+  }
+  window.onload=()=>setTimeout(descargar,800)
+  <\/script>
+  </body></html>`
+  const w=window.open('','_blank','width=860,height=900')
+  w.document.write(html)
   w.document.close()
 }
 </script>
