@@ -66,7 +66,7 @@ const RESULTADOS = {
   },
 }
 
-function calcularTier(r) {
+function calcularTier(r: any) {
   const p = { inicial: 0, pro: 0, copiloto: 0 }
   PREGUNTAS.forEach(preg => { const op = preg.opciones.find(o => o.id === r[preg.id]); if (op?.tier) p[op.tier]++ })
   if (p.copiloto >= 2) return 'copiloto'
