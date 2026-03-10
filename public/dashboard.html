@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>InsightPilot — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#060E1A;--ink-1:#091425;--ink-2:#0C1A30;--indigo:#2D42CC;--sky:#4C8EF0;--ok:#0DB87A;--warn:#E88C0C;--danger:#D94040;--text:#E8EEF8;--dim:#7A90B4;--xs:#3A506E;--bs:rgba(255,255,255,.055);--bs2:rgba(255,255,255,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text);overflow-x:hidden}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:1000;background:var(--ink);display:flex;align-items:center;justify-content:center}
+#login-screen::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(45,66,204,.14),transparent 70%);pointer-events:none}
+.login-box{width:100%;max-width:400px;padding:36px;background:var(--ink-1);border:1px solid var(--bs);border-radius:20px;position:relative;z-index:1}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.ltabs{display:flex;gap:8px;margin-bottom:22px}
+.ltab{flex:1;padding:9px;border-radius:8px;border:1px solid var(--bs);background:transparent;color:var(--dim);font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.ltab.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.lfield{margin-bottom:13px}
+.llabel{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;display:block;margin-bottom:5px}
+.linput{width:100%;padding:11px 14px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:9px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.linput:focus{border-color:rgba(76,142,240,.5)}
+.lbtn{width:100%;padding:13px;background:var(--indigo);color:#fff;border:none;border-radius:9px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;box-shadow:0 8px 28px rgba(45,66,204,.35)}
+.lbtn:hover{background:#2438bf;transform:translateY(-1px)}
+.lerr{font-size:12px;color:var(--danger);text-align:center;margin-top:10px;display:none}
+.lselect{width:100%;padding:11px 14px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:9px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:13px}
+.lselect option{background:#091425}
+
+/* APP */
+#app{display:none;height:100vh;overflow:hidden}
+#app.on{display:flex}
+
+/* SIDEBAR */
+#sidebar{width:220px;flex-shrink:0;background:var(--ink-1);border-right:1px solid var(--bs);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid var(--bs);display:flex;align-items:center;gap:10px}
+.sb-brand{font-family:'Sora',sans-serif;font-size:13px;font-weight:900;color:#fff}
+.sb-brand-sub{font-size:9px;color:var(--xs);letter-spacing:.04em}
+.sb-who{margin:12px 10px;background:var(--ink-2);border:1px solid var(--bs);border-radius:10px;padding:10px 12px}
+.sb-who-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+.sb-who-name{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff}
+.sb-who-tier{font-size:10px;color:var(--sky);margin-top:1px}
+.sb-sec{padding:8px 12px 3px;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em}
+.sbi{display:flex;align-items:center;gap:9px;padding:9px 12px;margin:1px 8px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:var(--dim);font-weight:500;border:1px solid transparent}
+.sbi:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sbi.on{background:rgba(76,142,240,.12);color:var(--sky);border-color:rgba(76,142,240,.2)}
+.sbi svg{flex-shrink:0;opacity:.7}
+.sbi.on svg{opacity:1}
+.sb-badge{margin-left:auto;background:var(--danger);color:#fff;font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:99px}
+.sb-foot{margin-top:auto;padding:12px;border-top:1px solid var(--bs)}
+.sb-out{width:100%;padding:9px;background:transparent;border:1px solid var(--bs);color:var(--xs);border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:8px}
+.sb-out:hover{color:var(--danger);border-color:rgba(217,64,64,.3)}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;background:var(--ink)}
+.view{display:none;padding:26px 30px;min-height:100%;animation:fi .25s ease}
+.view.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOPBAR */
+.tbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.tbar h1{font-family:'Sora',sans-serif;font-size:21px;font-weight:900;color:#fff;letter-spacing:-.02em}
+.tbar p{font-size:13px;color:var(--dim);margin-top:2px}
+.tbr{display:flex;gap:8px}
+.tbtn{padding:8px 15px;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tbtn-p{background:var(--indigo);color:#fff}
+.tbtn-p:hover{background:#2438bf}
+.tbtn-g{background:rgba(255,255,255,.04);color:var(--dim);border:1px solid var(--bs)}
+.tbtn-g:hover{color:var(--text)}
+
+/* GRID */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:18px}
+
+/* CARD */
+.card{background:var(--ink-1);border:1px solid var(--bs);border-radius:14px;padding:17px 19px;transition:border-color .2s}
+.card:hover{border-color:var(--bs2)}
+.card-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.card-val{font-family:'Sora',sans-serif;font-size:24px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1}
+.card-sub{font-size:11px;color:var(--dim);margin-top:4px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:11px;padding:2px 8px;border-radius:99px;margin-top:6px}
+.pill-up{background:rgba(13,184,122,.12);color:var(--ok)}
+.pill-dn{background:rgba(217,64,64,.12);color:var(--danger)}
+.pill-ne{background:rgba(122,144,180,.1);color:var(--dim)}
+
+/* GAUGE */
+.gauge-wrap{display:grid;grid-template-columns:240px 1fr;gap:18px;margin-bottom:18px}
+.gauge-card{background:var(--ink-1);border:1px solid var(--bs);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center}
+.g-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.g-svg-wrap{position:relative;width:150px;height:150px;margin:6px auto}
+.g-svg{transform:rotate(-90deg)}
+.g-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:13}
+.g-fill{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+.g-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.g-score{font-family:'Sora',sans-serif;font-size:34px;font-weight:900;color:#fff;line-height:1}
+.g-unit{font-size:10px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
+.area-row{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.area-row:last-child{margin-bottom:0}
+.area-name{font-size:12px;color:var(--dim);width:110px;flex-shrink:0}
+.area-track{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.area-fill{height:100%;border-radius:99px;transition:width 1.2s ease}
+.area-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--text);width:30px;text-align:right;flex-shrink:0}
+
+/* CHART */
+.cc{background:var(--ink-1);border:1px solid var(--bs);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.cc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cc-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.cc-meta{font-size:11px;color:var(--dim)}
+.cw{position:relative;height:190px}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse}
+.dt th{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;padding:9px 13px;border-bottom:1px solid var(--bs);text-align:left}
+.dt td{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;color:var(--text)}
+.dt tr:hover td{background:rgba(255,255,255,.02)}
+.dt tr:last-child td{border:none}
+
+/* ALERT */
+.al{background:var(--ink-1);border:1px solid var(--bs);border-radius:12px;padding:13px 17px;margin-bottom:10px;display:flex;align-items:flex-start;gap:13px;transition:border-color .2s}
+.al:hover{border-color:var(--bs2)}
+.al-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.al-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.al-desc{font-size:12px;color:var(--dim);line-height:1.5}
+.al-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--xs);margin-top:4px}
+.al-badge{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:99px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.bc{background:rgba(217,64,64,.15);color:var(--danger);border:1px solid rgba(217,64,64,.25)}
+.ba{background:rgba(232,140,12,.15);color:var(--warn);border:1px solid rgba(232,140,12,.25)}
+.bi{background:rgba(76,142,240,.12);color:var(--sky);border:1px solid rgba(76,142,240,.2)}
+
+/* CLIENT ROW */
+.cr{background:var(--ink-1);border:1px solid var(--bs);border-radius:12px;padding:15px 19px;margin-bottom:10px;display:grid;grid-template-columns:1fr 110px 120px 110px auto;gap:14px;align-items:center;transition:border-color .2s}
+.cr:hover{border-color:var(--bs2)}
+.cr-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.cr-meta{font-size:12px;color:var(--dim);margin-top:2px}
+
+/* BUTTONS */
+.btn-wa{display:flex;align-items:center;gap:5px;padding:7px 12px;background:rgba(13,184,122,.12);color:var(--ok);border:1px solid rgba(13,184,122,.2);border-radius:8px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-wa:hover{background:rgba(13,184,122,.22)}
+.btn-view{display:flex;align-items:center;gap:5px;padding:7px 12px;background:rgba(76,142,240,.1);color:var(--sky);border:1px solid rgba(76,142,240,.2);border-radius:8px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-view:hover{background:rgba(76,142,240,.2)}
+.btn-pdf{display:flex;align-items:center;gap:5px;padding:7px 12px;background:rgba(45,66,204,.12);color:#7A9FFF;border:1px solid rgba(45,66,204,.25);border-radius:8px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-pdf:hover{background:rgba(45,66,204,.22)}
+
+/* SIM */
+.sim-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;display:block;margin-bottom:5px}
+.sim-inp{width:100%;padding:10px 13px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:8px;color:var(--text);font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s;margin-bottom:14px}
+.sim-inp:focus{border-color:rgba(76,142,240,.5)}
+.sim-result{background:linear-gradient(135deg,var(--ink-2),var(--ink-1));border:1px solid rgba(76,142,240,.2);border-radius:12px;padding:20px;margin-bottom:13px}
+.sim-rlbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--sky);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.sim-rval{font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:4px}
+.sim-rsub{font-size:12px;color:var(--dim);line-height:1.5}
+
+/* NOTIF */
+.notif{position:fixed;top:16px;right:20px;z-index:9999;background:var(--ink-1);border:1px solid var(--bs);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.4);animation:si .3s ease;cursor:pointer;max-width:320px}
+@keyframes si{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--sky);cursor:pointer;margin-bottom:16px;font-family:'Sora',sans-serif;font-weight:700;background:none;border:none;padding:0}
+.back-btn:hover{color:#fff}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="26" height="29" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".9"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".7"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".5"/></svg>
+      <div><div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:900;color:#fff">InsightPilot</div><div style="font-size:10px;color:var(--xs)">by Levx Intelligence</div></div>
+    </div>
+    <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:5px;letter-spacing:-.02em">Acceder al panel</div>
+    <div style="font-size:13px;color:var(--dim);margin-bottom:22px">Ingresá tus credenciales para continuar.</div>
+    <div class="ltabs">
+      <div class="ltab on" id="lt-owner" onclick="setTab('owner')">Dueño</div>
+      <div class="ltab" id="lt-client" onclick="setTab('client')">Cliente</div>
+    </div>
+    <div id="lf-owner">
+      <div class="lfield"><label class="llabel">Clave de acceso</label><input class="linput" id="inp-owner" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"></div>
+      <button class="lbtn" onclick="login()">Ingresar como dueño</button>
+    </div>
+    <div id="lf-client" style="display:none">
+      <div class="lfield"><label class="llabel">Tu empresa</label>
+        <select class="lselect" id="sel-client">
+          <option value="">— Seleccioná tu negocio —</option>
+          <option value="DN">Distribuidora Norte</option>
+          <option value="FE">Ferretería El Centro</option>
+          <option value="RI">Ropa & Estilo SA</option>
+        </select>
+      </div>
+      <div class="lfield"><label class="llabel">Clave</label><input class="linput" id="inp-client" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginClient()"></div>
+      <button class="lbtn" onclick="loginClient()">Ingresar</button>
+    </div>
+    <div class="lerr" id="lerr">Clave incorrecta. Intentá de nuevo.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div id="sidebar">
+    <div class="sb-logo">
+      <svg width="20" height="23" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div class="sb-brand">InsightPilot</div><div class="sb-brand-sub">by Levx Intelligence</div></div>
+    </div>
+    <div class="sb-who" id="sb-who"></div>
+
+    <!-- OWNER NAV -->
+    <div id="nav-owner" style="display:none">
+      <div class="sb-sec">Panel principal</div>
+      <div class="sbi on" id="sbi-clientes" onclick="sv('clientes')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Mis clientes</div>
+      <div class="sbi" id="sbi-consultas" onclick="sv('consultas')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Consultas del quiz<span class="sb-badge" id="badge-leads">0</span></div>
+      <div class="sbi" id="sbi-alertas-owner" onclick="sv('alertas-owner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas<span class="sb-badge">2</span></div>
+    </div>
+
+    <!-- CLIENT NAV -->
+    <div id="nav-client" style="display:none">
+      <div class="sb-sec">Mi negocio</div>
+      <div class="sbi on" id="sbi-health" onclick="sv('health')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Health Score</div>
+      <div class="sbi" id="sbi-ventas" onclick="sv('ventas')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Ventas</div>
+      <div class="sbi" id="sbi-inventario" onclick="sv('inventario')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Inventario</div>
+      <div class="sbi" id="sbi-marketing" onclick="sv('marketing')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Marketing</div>
+      <div class="sbi" id="sbi-proyecciones" onclick="sv('proyecciones')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Proyecciones</div>
+      <div class="sbi" id="sbi-simulador" onclick="sv('simulador')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Simulador</div>
+      <div class="sbi" id="sbi-alertas" onclick="sv('alertas')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Alertas<span class="sb-badge" id="badge-alerts">0</span></div>
+    </div>
+
+    <div class="sb-foot">
+      <button class="sb-out" onclick="logout()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- CLIENTES -->
+    <div class="view on" id="view-clientes">
+      <div class="tbar"><div><h1>Mis clientes</h1><p>Estado actual de cada negocio</p></div>
+        <div class="tbr"><button class="tbtn tbtn-g" onclick="checkNoData()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>Verificar carga</button></div>
+      </div>
+      <div class="g3" style="margin-bottom:22px">
+        <div class="card"><div class="card-lbl">Clientes activos</div><div class="card-val">3</div><div class="card-sub">Copiloto + Pro</div></div>
+        <div class="card"><div class="card-lbl">MRR</div><div class="card-val" style="color:var(--ok)">$4.500</div><div class="card-sub">USD / mes</div></div>
+        <div class="card"><div class="card-lbl">Sin datos hoy</div><div class="card-val" style="color:var(--warn)">1</div><div class="card-sub">Ferretería El Centro</div></div>
+      </div>
+      <div id="clientes-list"></div>
+    </div>
+
+    <!-- CONSULTAS -->
+    <div class="view" id="view-consultas">
+      <div class="tbar"><div><h1>Consultas del quiz</h1><p>Leads generados desde el diagnóstico SPIN</p></div>
+        <div class="tbr"><button class="tbtn tbtn-g" onclick="loadLeads()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Actualizar</button></div>
+      </div>
+      <div id="leads-list"><div style="text-align:center;padding:60px;color:var(--xs)">Cargando...</div></div>
+    </div>
+
+    <!-- ALERTAS OWNER -->
+    <div class="view" id="view-alertas-owner">
+      <div class="tbar"><div><h1>Alertas del sistema</h1><p>Situaciones que requieren tu atención</p></div></div>
+      <div class="al"><div class="al-dot" style="background:var(--warn)"></div><div class="al-body" style="flex:1"><div class="al-title">Ferretería El Centro — Sin carga de datos</div><div class="al-desc">No registró ventas en las últimas 28 horas. El análisis puede verse afectado.</div><div class="al-time">Hace 4 horas</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="al-badge ba">Alta</div><button class="btn-wa" onclick="sendWA('5493854000001','Ferretería El Centro')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Recordar</button></div></div>
+      <div class="al"><div class="al-dot" style="background:var(--danger)"></div><div class="al-body" style="flex:1"><div class="al-title">Distribuidora Norte — Stock crítico</div><div class="al-desc">Aceite girasol x24 tiene cobertura para 4 días. Quiebre inminente antes del jueves.</div><div class="al-time">Hace 1 hora</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="al-badge bc">Crítica</div><button class="btn-wa" onclick="sendWA('5493851000002','Distribuidora Norte')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Alertar</button></div></div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="view" id="view-health">
+      <div class="tbar"><div><h1 id="hs-title">Health Score</h1><p id="hs-sub">Estado general del negocio</p></div>
+        <div class="tbr"><button class="tbtn tbtn-g" id="back-from-health" onclick="backToClientes()" style="display:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button><button class="tbtn tbtn-p" onclick="notif('Reporte semanal enviado por WhatsApp','ok')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Enviar reporte</button></div>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-card">
+          <div class="g-lbl">Score general</div>
+          <div class="g-svg-wrap">
+            <svg class="g-svg" width="150" height="150" viewBox="0 0 150 150"><circle class="g-track" cx="75" cy="75" r="58"/><circle class="g-fill" id="g-fill" cx="75" cy="75" r="58" stroke="#4C8EF0" stroke-dasharray="364" stroke-dashoffset="90"/></svg>
+            <div class="g-center"><div class="g-score" id="g-score">74</div><div class="g-unit">/ 100</div></div>
+          </div>
+          <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-top:8px;text-align:center" id="g-status">Negocio saludable</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:4px;text-align:center" id="g-trend">+6 pts vs semana pasada</div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div style="font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">Desglose por área</div>
+          <div id="areas"></div>
+        </div>
+      </div>
+      <div class="g4" id="hs-cards"></div>
+      <div class="cc"><div class="cc-head"><div class="cc-title">Evolución del Health Score</div><div class="cc-meta">Últimas 8 semanas</div></div><div class="cw"><canvas id="ch-hs"></canvas></div></div>
+    </div>
+
+    <!-- VENTAS -->
+    <div class="view" id="view-ventas">
+      <div class="tbar"><div><h1>Ventas</h1><p>Análisis de ingresos y rentabilidad</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-ventas" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div class="g4" id="ventas-cards"></div>
+      <div class="g2">
+        <div class="cc" style="margin-bottom:0"><div class="cc-head"><div class="cc-title">Ventas diarias (30 días)</div></div><div class="cw"><canvas id="ch-ventas"></canvas></div></div>
+        <div class="cc" style="margin-bottom:0"><div class="cc-head"><div class="cc-title">Por canal</div></div><div class="cw"><canvas id="ch-canales"></canvas></div></div>
+      </div>
+      <div class="cc" style="margin-top:18px"><div class="cc-head"><div class="cc-title">Top productos por margen</div></div><table class="dt" id="top-prod"></table></div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div class="view" id="view-inventario">
+      <div class="tbar"><div><h1>Inventario</h1><p>Stock, rotación y capital inmovilizado</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-inv" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div class="g4" id="inv-cards"></div>
+      <div class="cc"><div class="cc-head"><div class="cc-title">Productos con stock crítico</div><div class="cc-meta" style="color:var(--danger)">Requieren atención</div></div><table class="dt" id="stock-crit"></table></div>
+      <div class="cc"><div class="cc-head"><div class="cc-title">Distribución por valor</div></div><div class="cw"><canvas id="ch-inv"></canvas></div></div>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="view" id="view-marketing">
+      <div class="tbar"><div><h1>Marketing</h1><p>Retorno de inversión publicitaria</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-mkt" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div class="g4" id="mkt-cards"></div>
+      <div class="g2">
+        <div class="cc" style="margin-bottom:0"><div class="cc-head"><div class="cc-title">ROAS por canal</div></div><div class="cw"><canvas id="ch-roas"></canvas></div></div>
+        <div class="cc" style="margin-bottom:0"><div class="cc-head"><div class="cc-title">Inversión vs Retorno</div></div><div class="cw"><canvas id="ch-mkt"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- PROYECCIONES -->
+    <div class="view" id="view-proyecciones">
+      <div class="tbar"><div><h1>Proyecciones</h1><p>Estimaciones a 30, 60 y 90 días</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-proy" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div class="g3" id="proy-cards"></div>
+      <div class="cc"><div class="cc-head"><div class="cc-title">3 escenarios — Pesimista · Base · Optimista</div></div><div class="cw" style="height:230px"><canvas id="ch-proy"></canvas></div></div>
+    </div>
+
+    <!-- SIMULADOR -->
+    <div class="view" id="view-simulador">
+      <div class="tbar"><div><h1>Simulador</h1><p>¿Qué pasa si...? Explorá escenarios</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-sim" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div class="g2">
+        <div class="card">
+          <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:16px">Parámetros</div>
+          <label class="sim-lbl">Variación de precio (%)</label><input class="sim-inp" id="sp" type="number" value="0" oninput="simular()">
+          <label class="sim-lbl">Variación de volumen (%)</label><input class="sim-inp" id="sv2" type="number" value="0" oninput="simular()">
+          <label class="sim-lbl">Inversión publicitaria extra ($)</label><input class="sim-inp" id="spub" type="number" value="0" oninput="simular()">
+          <label class="sim-lbl">Reducción de costo operativo (%)</label><input class="sim-inp" id="sc" type="number" value="0" oninput="simular()">
+        </div>
+        <div>
+          <div class="sim-result"><div class="sim-rlbl">Impacto en ingresos</div><div class="sim-rval" id="sr-ing">$0</div><div class="sim-rsub" id="sr-ing-sub">Ajustá los parámetros</div></div>
+          <div class="sim-result" style="border-color:rgba(13,184,122,.2)"><div class="sim-rlbl" style="color:var(--ok)">Impacto en margen</div><div class="sim-rval" id="sr-mar">$0</div><div class="sim-rsub" id="sr-mar-sub">—</div></div>
+          <div class="sim-result" style="border-color:rgba(232,140,12,.2)"><div class="sim-rlbl" style="color:var(--warn)">ROI publicidad</div><div class="sim-rval" id="sr-roi">—</div><div class="sim-rsub" id="sr-roi-sub">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="view" id="view-alertas">
+      <div class="tbar"><div><h1>Alertas</h1><p>Situaciones que requieren atención</p></div><div class="tbr"><button class="tbtn tbtn-g" id="back-al" onclick="backToClientes()" style="display:none">← Volver</button></div></div>
+      <div id="alertas-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══ DATOS ═══════════════════════════════════════════════════
+const NG={
+  DN:{n:'Distribuidora Norte',r:'Mayorista',c:'Salta',tier:'Copiloto Mensual',tc:'#0DB87A',noData:false,ult:'Hace 2 horas',
+    hs:62,hsTrend:-4,
+    areas:[{n:'Ventas',v:58,c:'#4C8EF0'},{n:'Inventario',v:41,c:'#D94040'},{n:'Marketing',v:70,c:'#E88C0C'},{n:'Finanzas',v:65,c:'#0DB87A'},{n:'Operaciones',v:72,c:'#4C8EF0'}],
+    hsCards:[{l:'Ingresos',v:'$8.4M',s:'vs $7.8M anterior',t:'+7.7%',u:1},{l:'Margen neto',v:'18.4%',s:'Objetivo: 22%',t:'-3.6pp',u:0},{l:'Capital stock',v:'$3.2M',s:'38% en 1 cliente',t:'Riesgo',u:0},{l:'Días quiebre',v:'4',s:'Aceite girasol',t:'Crítico',u:0}],
+    hsHist:[55,58,61,59,64,60,66,62],
+    ventas:{cards:[{l:'Ventas mes',v:'$8.4M',s:'vs $7.8M',t:'+7.7%',u:1},{l:'Ticket prom.',v:'$42.000',s:'por pedido',t:'+3.2%',u:1},{l:'Pedidos',v:'186',s:'esta semana',t:'+12',u:1},{l:'Cliente top',v:'38%',s:'Sup. Andino',t:'Riesgo',u:0}],
+      d:[420,380,510,490,560,380,420,480,520,440,390,470,500,480,460,510,490,520,480,500,440,420,460,490,510,480,500,520,460,480],
+      ch:{l:['Mostrador','Teléfono','WhatsApp','Vendedor'],d:[45,28,18,9]},
+      top:[{p:'Aceite girasol x24',v:'$1.8M',m:'32%',u:'Alto'},{p:'Harina 0000 x50kg',v:'$1.2M',m:'28%',u:'Alto'},{p:'Azúcar x50kg',v:'$890K',m:'24%',u:'Medio'},{p:'Arroz x50kg',v:'$760K',m:'21%',u:'Medio'},{p:'Yerba x10kg',v:'$540K',m:'19%',u:'Bajo'}]},
+    inv:{cards:[{l:'SKUs activos',v:'284',s:'en depósito',t:'',u:null},{l:'Cap. inmov.',v:'$3.2M',s:'en stock',t:'-',u:null},{l:'Rotación',v:'18 días',s:'obj: 12 días',t:'lento',u:0},{l:'Críticos',v:'3',s:'bajo mínimo',t:'urgente',u:0}],
+      crit:[{p:'Aceite girasol x24',s:'42 un',m:'120 un',d:'4',e:'Crítico'},{p:'Harina 0000 x50kg',s:'8 un',m:'30 un',d:'3',e:'Crítico'},{p:'Azúcar x50kg',s:'15 un',m:'40 un',d:'6',e:'Alerta'}],
+      dist:{l:['Alimentos','Aceites','Azúcar','Arroz','Otros'],d:[38,22,18,14,8]}},
+    mkt:{cards:[{l:'Inversión',v:'$45.000',s:'Meta + WA',t:'-',u:null},{l:'ROAS',v:'2.8x',s:'retorno',t:'-0.3x',u:0},{l:'Costo/pedido',v:'$242',s:'CAC',t:'+8%',u:0},{l:'Nuevos clientes',v:'12',s:'este mes',t:'+4',u:1}],
+      roas:{l:['Meta','WhatsApp','Referidos','Google'],d:[2.4,4.1,6.8,1.9]},
+      inv:[38,42,45,41,38,45,42,38,45,42,38,45],ret:[89,112,126,98,92,138,115,94,128,118,102,135]},
+    proy:{cards:[{l:'30 días',v:'$9.1M',s:'escenario base',t:'+8.3%',u:1},{l:'60 días',v:'$17.8M',s:'acumulado',t:'+6.1%',u:1},{l:'90 días',v:'$27.2M',s:'acumulado',t:'+4.8%',u:1}],
+      lb:['Hoy','S2','S4','S6','S8','S10','S12'],p:[8.4,8.1,7.8,8.2,8.0,7.9,8.1],b:[8.4,8.7,9.1,9.4,9.2,9.6,10.1],o:[8.4,9.2,9.8,10.4,10.9,11.4,12.2]},
+    sim:{base:8400000,margen:18},
+    alertas:[{t:'Aceite girasol — quiebre en 4 días',d:'Stock: 42 un. Con demanda de 12/día, el quiebre ocurre el jueves. Orden de compra urgente.',time:'Hace 1 hora',n:'critico'},{t:'Dependencia 38% en 1 cliente',d:'Supermercado Andino representa el 38% de ingresos. Si corta pedidos, impacto de $3.2M/mes.',time:'Hace 3 horas',n:'alto'},{t:'Rotación lenta — Yerba mate x10kg',d:'24 días de stock. Capital inmovilizado: $180.000.',time:'Ayer',n:'info'}]},
+
+  FE:{n:'Ferretería El Centro',r:'Ferretería',c:'Salta',tier:'Diagnóstico Pro',tc:'#2D42CC',noData:true,ult:'Hace 28 horas',
+    hs:48,hsTrend:-2,
+    areas:[{n:'Ventas',v:52,c:'#4C8EF0'},{n:'Inventario',v:35,c:'#D94040'},{n:'Marketing',v:28,c:'#D94040'},{n:'Finanzas',v:61,c:'#E88C0C'},{n:'Operaciones',v:58,c:'#E88C0C'}],
+    hsCards:[{l:'Ingresos',v:'$1.8M',s:'vs $2.1M anterior',t:'-14%',u:0},{l:'Cap. inmov.',v:'$1.2M',s:'sin rotación 60+ días',t:'Alto',u:0},{l:'ROAS',v:'0.7x',s:'perdiendo dinero',t:'Crítico',u:0},{l:'Margen neto',v:'22%',s:'obj: 28%',t:'-6pp',u:0}],
+    hsHist:[56,54,52,50,53,49,51,48],
+    ventas:{cards:[{l:'Ventas mes',v:'$1.8M',s:'vs $2.1M',t:'-14%',u:0},{l:'Ticket prom.',v:'$3.200',s:'por venta',t:'-8%',u:0},{l:'Clientes activos',v:'142',s:'este mes',t:'-18',u:0},{l:'Venta top',v:'$48.000',s:'Construir SA',t:'+',u:1}],
+      d:[62,45,78,52,41,58,72,48,56,44,38,62,48,55,42,60,48,52,38,44,58,48,62,45,52,38,48,56,44,48],
+      ch:{l:['Mostrador','Teléfono','Cta. cte.','Web'],d:[58,22,15,5]},
+      top:[{p:'Pintura látex 20L',v:'$280K',m:'38%',u:'Alto'},{p:'Cemento Portland',v:'$210K',m:'22%',u:'Medio'},{p:'Caño PVC 4"',v:'$180K',m:'42%',u:'Alto'},{p:'Sellador acrílico',v:'$145K',m:'48%',u:'Alto'},{p:'Lija al agua x10',v:'$92K',m:'55%',u:'Alto'}]},
+    inv:{cards:[{l:'SKUs activos',v:'1.240',s:'en depósito',t:'',u:null},{l:'Cap. inmov.',v:'$1.2M',s:'60+ días sin rotar',t:'crítico',u:0},{l:'Rotación',v:'42 días',s:'obj: 25 días',t:'lento',u:0},{l:'Sin movimiento',v:'187',s:'SKUs estancados',t:'revisar',u:0}],
+      crit:[{p:'Pintura látex 10L',s:'8 un',m:'20 un',d:'5',e:'Crítico'},{p:'Cemento Portland',s:'12 un',m:'35 un',d:'7',e:'Alerta'}],
+      dist:{l:['Pinturas','Materiales','Plomería','Electricidad','Herramientas','Otros'],d:[28,22,18,14,10,8]}},
+    mkt:{cards:[{l:'Inversión',v:'$85.000',s:'Meta Ads',t:'-',u:null},{l:'ROAS',v:'0.7x',s:'perdiendo $25.5K/mes',t:'crítico',u:0},{l:'Costo/cliente',v:'$599',s:'CAC',t:'+42%',u:0},{l:'Nuevos clientes',v:'3',s:'este mes',t:'-9',u:0}],
+      roas:{l:['Meta Ads','Instagram','Google','Referidos'],d:[0.7,1.1,0.9,3.8]},
+      inv:[80,85,82,78,85,88,82,85,80,78,85,85],ret:[58,62,55,54,60,58,56,62,55,54,58,60]},
+    proy:{cards:[{l:'Sin cambios',v:'$1.6M',s:'tendencia actual',t:'-11%',u:0},{l:'Con optimización',v:'$2.2M',s:'ajustando publicidad',t:'+22%',u:1},{l:'Potencial mejora',v:'$600K',s:'mensual alcanzable',t:'',u:1}],
+      lb:['Hoy','S2','S4','S6','S8','S10','S12'],p:[1.8,1.6,1.5,1.4,1.5,1.4,1.3],b:[1.8,1.9,2.0,2.1,2.0,2.1,2.2],o:[1.8,2.1,2.4,2.6,2.8,3.0,3.2]},
+    sim:{base:1800000,margen:22},
+    alertas:[{t:'ROAS negativo — Meta Ads perdiendo dinero',d:'Invertiste $85.000, generaste $59.500. Cada peso retorna $0.70. Pausar campaña urgente.',time:'Hoy',n:'critico'},{t:'$1.2M en capital inmovilizado',d:'187 SKUs sin movimiento en 60+ días. Rotación de 42 días vs objetivo 25.',time:'Ayer',n:'critico'},{t:'Caída de ventas 14% mensual',d:'Tercer mes consecutivo con baja. Ticket promedio -8%.',time:'Hace 2 días',n:'alto'}]},
+
+  RI:{n:'Ropa & Estilo SA',r:'Indumentaria',c:'Santiago del Estero',tier:'Copiloto Mensual',tc:'#0DB87A',noData:false,ult:'Hace 30 min',
+    hs:88,hsTrend:7,
+    areas:[{n:'Ventas',v:92,c:'#0DB87A'},{n:'Inventario',v:84,c:'#4C8EF0'},{n:'Marketing',v:95,c:'#0DB87A'},{n:'Finanzas',v:86,c:'#0DB87A'},{n:'Operaciones',v:82,c:'#4C8EF0'}],
+    hsCards:[{l:'Ingresos',v:'$4.2M',s:'mejor mes del año',t:'+28%',u:1},{l:'ROAS',v:'15x',s:'Meta Ads',t:'+3x',u:1},{l:'Margen neto',v:'42%',s:'sobre objetivo',t:'+12pp',u:1},{l:'Clientes nuevos',v:'186',s:'via redes',t:'+64%',u:1}],
+    hsHist:[72,75,74,78,80,83,81,88],
+    ventas:{cards:[{l:'Ventas mes',v:'$4.2M',s:'mejor mes',t:'+28%',u:1},{l:'Ticket prom.',v:'$8.400',s:'por venta',t:'+18%',u:1},{l:'Clientes activos',v:'312',s:'este mes',t:'+64',u:1},{l:'Conversión',v:'4.8%',s:'online',t:'+1.2pp',u:1}],
+      d:[120,145,180,162,148,192,210,188,172,156,168,195,220,198,182,210,228,215,198,212,236,218,204,226,244,232,218,240,228,242],
+      ch:{l:['Instagram','TikTok','Tienda física','WhatsApp'],d:[42,31,18,9]},
+      top:[{p:'Vestido midi floral',v:'$840K',m:'58%',u:'Muy alto'},{p:'Jogger chupin',v:'$620K',m:'52%',u:'Muy alto'},{p:'Remera oversized',v:'$580K',m:'48%',u:'Alto'},{p:'Blazer cropped',v:'$420K',m:'62%',u:'Muy alto'},{p:'Jean tiro alto',v:'$380K',m:'44%',u:'Alto'}]},
+    inv:{cards:[{l:'SKUs activos',v:'486',s:'colección actual',t:'',u:null},{l:'Stock saludable',v:'94%',s:'con cobertura',t:'+4%',u:1},{l:'Rotación',v:'11 días',s:'obj: 14 días',t:'excelente',u:1},{l:'Sin stock',v:'8',s:'a reabastecer',t:'gestionar',u:null}],
+      crit:[{p:'Vestido midi floral T.M',s:'2 un',m:'15 un',d:'1',e:'Crítico'},{p:'Blazer cropped T.S',s:'3 un',m:'10 un',d:'2',e:'Alerta'}],
+      dist:{l:['Vestidos','Pantalones','Remeras','Blazers','Accesorios'],d:[32,24,22,14,8]}},
+    mkt:{cards:[{l:'Inversión',v:'$62.000',s:'Meta + TikTok',t:'+15%',u:null},{l:'ROAS',v:'15x',s:'retorno excepcional',t:'+3x',u:1},{l:'Costo/cliente',v:'$198',s:'CAC',t:'-22%',u:1},{l:'Alcance',v:'180K',s:'personas/mes',t:'+45%',u:1}],
+      roas:{l:['Meta Ads','TikTok','Instagram org.','Referidos'],d:[14.2,16.8,8.4,22.1]},
+      inv:[52,55,58,54,56,60,58,56,60,58,62,62],ret:[728,798,852,810,840,930,894,854,918,870,946,960]},
+    proy:{cards:[{l:'30 días',v:'$5.1M',s:'manteniendo tendencia',t:'+21%',u:1},{l:'60 días',v:'$10.8M',s:'acumulado',t:'+18%',u:1},{l:'90 días',v:'$17.2M',s:'acumulado',t:'+15%',u:1}],
+      lb:['Hoy','S2','S4','S6','S8','S10','S12'],p:[4.2,4.0,4.1,4.3,4.2,4.4,4.5],b:[4.2,4.5,4.8,5.1,5.0,5.3,5.6],o:[4.2,4.9,5.4,5.8,6.2,6.8,7.4]},
+    sim:{base:4200000,margen:42},
+    alertas:[{t:'Vestido midi floral T.M — quiebre en 24hs',d:'Solo 2 unidades. Con 12 pedidos diarios, quiebre mañana. Reposición urgente.',time:'Hace 30 min',n:'critico'},{t:'TikTok Ads — oportunidad de escala',d:'ROAS 16.8x con $18.000. Duplicar puede sumar $300.000 adicionales.',time:'Hace 2 horas',n:'info'},{t:'Preparar colección primavera',d:'Historial: +35% en septiembre. Abastecer antes del 20 de agosto.',time:'Ayer',n:'info'}]}
+}
+
+// SUPABASE
+const SU='https://gqhnbiwibwzwpxdxshbk.supabase.co'
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxaG5iaXdpYnd6d3B4ZHhzaGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwODk0OTIsImV4cCI6MjA4ODY2NTQ5Mn0.v3kQ-7yPxGLWk3-yvRT6pnDm-4X55Ynk7Iqen38hDvg'
+
+let role=null,neg=null,charts={}
+
+// ═══ LOGIN ════════════════════════════════════════════════════
+function setTab(t){
+  document.getElementById('lt-owner').classList.toggle('on',t==='owner')
+  document.getElementById('lt-client').classList.toggle('on',t==='client')
+  document.getElementById('lf-owner').style.display=t==='owner'?'block':'none'
+  document.getElementById('lf-client').style.display=t==='client'?'block':'none'
+  document.getElementById('lerr').style.display='none'
+}
+function login(){
+  if(document.getElementById('inp-owner').value==='levx2026'){role='owner';enterApp()}
+  else{document.getElementById('lerr').style.display='block'}
+}
+function loginClient(){
+  const k=document.getElementById('sel-client').value
+  const p=document.getElementById('inp-client').value
+  if(k&&p==='cliente123'){role='client';neg=k;enterApp()}
+  else{document.getElementById('lerr').style.display='block'}
+}
+function logout(){
+  role=null;neg=null
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}})
+  charts={}
+  document.getElementById('app').classList.remove('on')
+  document.getElementById('login-screen').style.display='flex'
+  document.getElementById('inp-owner').value=''
+  document.getElementById('inp-client').value=''
+  document.getElementById('lerr').style.display='none'
+}
+function enterApp(){
+  document.getElementById('login-screen').style.display='none'
+  document.getElementById('app').classList.add('on')
+  if(role==='owner'){
+    document.getElementById('nav-owner').style.display='block'
+    document.getElementById('nav-client').style.display='none'
+    document.getElementById('sb-who').innerHTML='<div class="sb-who-lbl">Acceso</div><div class="sb-who-name">Luciano Elias</div><div class="sb-who-tier">Propietario</div>'
+    renderClientes()
+    loadLeads()
+    sv('clientes')
+  } else {
+    const n=NG[neg]
+    document.getElementById('nav-owner').style.display='none'
+    document.getElementById('nav-client').style.display='block'
+    document.getElementById('sb-who').innerHTML=`<div class="sb-who-lbl">Empresa</div><div class="sb-who-name">${n.n}</div><div class="sb-who-tier" style="color:${n.tc}">${n.tier}</div>`
+    renderDash(neg)
+    sv('health')
+  }
+}
+
+// ═══ VISTAS ══════════════════════════════════════════════════
+function sv(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'))
+  document.querySelectorAll('.sbi').forEach(i=>i.classList.remove('on'))
+  document.getElementById('view-'+id).classList.add('on')
+  const el=document.getElementById('sbi-'+id)
+  if(el)el.classList.add('on')
+}
+function backToClientes(){
+  neg=null
+  const n=NG[Object.keys(NG)[0]]
+  document.getElementById('sb-who').innerHTML='<div class="sb-who-lbl">Acceso</div><div class="sb-who-name">Luciano Elias</div><div class="sb-who-tier">Propietario</div>'
+  document.getElementById('nav-owner').style.display='block'
+  document.getElementById('nav-client').style.display='none'
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}})
+  charts={}
+  sv('clientes')
+}
+
+// ═══ OWNER: CLIENTES ══════════════════════════════════════════
+function renderClientes(){
+  document.getElementById('clientes-list').innerHTML=Object.entries(NG).map(([k,n])=>{
+    const hc=n.hs>=75?'#0DB87A':n.hs>=50?'#E88C0C':'#D94040'
+    return `<div class="cr">
+      <div><div class="cr-name">${n.n}</div><div class="cr-meta">${n.r} · ${n.c} · <span style="color:${n.tc}">${n.tier}</span></div></div>
+      <div><div style="font-family:'Sora',sans-serif;font-size:8px;color:var(--xs);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Health Score</div>
+        <div style="background:${hc}18;color:${hc};border:1px solid ${hc}30;font-family:'DM Mono',monospace;font-size:12px;padding:4px 10px;border-radius:99px;display:inline-block">${n.hs}/100</div></div>
+      <div>${n.noData?`<div style="display:flex;align-items:center;gap:5px;font-family:'Sora',sans-serif;font-size:11px;color:var(--warn);font-weight:700"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>Sin datos hoy</div>`:`<div style="font-size:11px;color:var(--ok)">${n.ult}</div>`}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--xs)">Últ. carga<br>${n.ult}</div>
+      <div style="display:flex;gap:7px">
+        ${n.noData?`<button class="btn-wa" onclick="sendWA('5493854000001','${n.n}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Recordar</button>`:''}
+        <button class="btn-view" onclick="verCliente('${k}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Ver</button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function verCliente(k){
+  neg=k
+  const n=NG[k]
+  document.getElementById('sb-who').innerHTML=`<div class="sb-who-lbl">Viendo</div><div class="sb-who-name">${n.n}</div><div class="sb-who-tier" style="color:${n.tc}">${n.tier}</div>`
+  document.getElementById('nav-owner').style.display='none'
+  document.getElementById('nav-client').style.display='block'
+  ;['health','ventas','inventario','marketing','proyecciones','simulador','alertas'].forEach(v=>{
+    const b=document.getElementById('back-'+v)||document.getElementById('back-from-health')
+    if(b)b.style.display='flex'
+  })
+  document.getElementById('back-from-health').style.display='flex'
+  document.getElementById('back-ventas').style.display='flex'
+  document.getElementById('back-inv').style.display='flex'
+  document.getElementById('back-mkt').style.display='flex'
+  document.getElementById('back-proy').style.display='flex'
+  document.getElementById('back-sim').style.display='flex'
+  document.getElementById('back-al').style.display='flex'
+  renderDash(k)
+  sv('health')
+}
+
+function checkNoData(){
+  const sin=Object.values(NG).filter(n=>n.noData).map(n=>n.n)
+  notif(sin.length?`Sin datos hoy: ${sin.join(', ')}`:'Todos los clientes cargaron datos hoy', sin.length?'warn':'ok')
+}
+
+// ═══ OWNER: LEADS ════════════════════════════════════════════
+async function loadLeads(){
+  try{
+    const r=await fetch(`${SU}/rest/v1/leads?order=fecha.desc`,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}})
+    const leads=await r.json()
+    document.getElementById('badge-leads').textContent=Array.isArray(leads)?leads.length:0
+    if(!Array.isArray(leads)||leads.length===0){
+      document.getElementById('leads-list').innerHTML='<div style="text-align:center;padding:60px;color:var(--xs);font-size:14px">No hay consultas registradas todavía.</div>'
+      return
+    }
+    const TC={inicial:'#4C8EF0',pro:'#2D42CC',copiloto:'#0DB87A'}
+    const TN={inicial:'Diagnóstico Inicial',pro:'Diagnóstico Pro',copiloto:'Copiloto Mensual'}
+    document.getElementById('leads-list').innerHTML=leads.map(l=>{
+      const c=TC[l.tier]||'#4C8EF0'
+      const f=new Date(l.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+      return `<div class="cr" style="grid-template-columns:1fr 140px 110px auto">
+        <div><div class="cr-name">${l.nombre}</div><div class="cr-meta">${l.empresa} · ${l.tel}</div></div>
+        <div><div style="background:${c}15;color:${c};border:1px solid ${c}30;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:99px;display:inline-block">${TN[l.tier]||l.tier}</div></div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--xs)">${f}</div>
+        <div style="display:flex;gap:7px">
+          <button class="btn-pdf" onclick='pdfLead(${JSON.stringify(l)})'><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
+          <button class="btn-wa" onclick="sendWA('${(l.tel||'').replace(/\D/g,'')}','${l.nombre}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>WA</button>
+        </div>
+      </div>`
+    }).join('')
+  }catch(e){document.getElementById('leads-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--xs)">Error al cargar. Verificá la conexión.</div>'}
+}
+
+// ═══ DASHBOARD ═══════════════════════════════════════════════
+function renderDash(k){
+  Object.values(charts).forEach(c=>{try{c.destroy()}catch(e){}})
+  charts={}
+  const n=NG[k]
+  rHealth(n);rVentas(n);rInv(n);rMkt(n);rProy(n);rAlertas(n)
+  document.getElementById('badge-alerts').textContent=n.alertas.length
+}
+
+function rHealth(n){
+  document.getElementById('hs-title').textContent=n.n+' — Health Score'
+  document.getElementById('hs-sub').textContent=n.r+' · '+n.c
+  const circ=2*Math.PI*58, off=circ-(n.hs/100)*circ
+  const f=document.getElementById('g-fill')
+  f.style.strokeDasharray=circ;f.style.strokeDashoffset=off
+  f.style.stroke=n.hs>=75?'#0DB87A':n.hs>=50?'#E88C0C':'#D94040'
+  document.getElementById('g-score').textContent=n.hs
+  document.getElementById('g-status').textContent=n.hs>=75?'Negocio saludable':n.hs>=50?'Requiere atención':'Situación crítica'
+  document.getElementById('g-trend').style.color=n.hsTrend>=0?'#0DB87A':'#D94040'
+  document.getElementById('g-trend').textContent=(n.hsTrend>=0?'+':'')+n.hsTrend+' pts vs semana pasada'
+  document.getElementById('areas').innerHTML=n.areas.map(a=>`<div class="area-row"><div class="area-name">${a.n}</div><div class="area-track"><div class="area-fill" style="width:${a.v}%;background:${a.c}"></div></div><div class="area-val">${a.v}</div></div>`).join('')
+  document.getElementById('hs-cards').innerHTML=n.hsCards.map(c=>`<div class="card"><div class="card-lbl">${c.l}</div><div class="card-val">${c.v}</div><div class="card-sub">${c.s}</div><div class="pill ${c.u===1?'pill-up':c.u===0?'pill-dn':'pill-ne'}">${c.t}</div></div>`).join('')
+  mkChart('ch-hs','line',{labels:['S1','S2','S3','S4','S5','S6','S7','S8'],datasets:[{data:n.hsHist,borderColor:'#4C8EF0',backgroundColor:'rgba(76,142,240,.08)',tension:.4,fill:true,pointRadius:4}]})
+}
+
+function rVentas(n){
+  const v=n.ventas
+  document.getElementById('ventas-cards').innerHTML=v.cards.map(c=>`<div class="card"><div class="card-lbl">${c.l}</div><div class="card-val">${c.v}</div><div class="card-sub">${c.s}</div><div class="pill ${c.u===1?'pill-up':c.u===0?'pill-dn':'pill-ne'}">${c.t}</div></div>`).join('')
+  mkChart('ch-ventas','bar',{labels:Array.from({length:30},(_,i)=>`D${i+1}`),datasets:[{data:v.d,backgroundColor:'rgba(76,142,240,.45)',borderColor:'#4C8EF0',borderWidth:1,borderRadius:3}]})
+  mkChart('ch-canales','doughnut',{labels:v.ch.l,datasets:[{data:v.ch.d,backgroundColor:['#4C8EF0','#2D42CC','#0DB87A','#E88C0C'],borderWidth:0,hoverOffset:4}]},{cutout:'65%'})
+  document.getElementById('top-prod').innerHTML='<thead><tr><th>Producto</th><th>Ventas</th><th>Margen</th><th>Rotación</th></tr></thead><tbody>'+v.top.map(p=>`<tr><td>${p.p}</td><td style="font-family:'DM Mono',monospace">${p.v}</td><td style="color:var(--ok);font-family:'DM Mono',monospace">${p.m}</td><td>${p.u}</td></tr>`).join('')+'</tbody>'
+}
+
+function rInv(n){
+  const iv=n.inv
+  document.getElementById('inv-cards').innerHTML=iv.cards.map(c=>`<div class="card"><div class="card-lbl">${c.l}</div><div class="card-val">${c.v}</div><div class="card-sub">${c.s}</div>${c.u!==null?`<div class="pill ${c.u===1?'pill-up':c.u===0?'pill-dn':'pill-ne'}">${c.t}</div>`:''}</div>`).join('')
+  document.getElementById('stock-crit').innerHTML='<thead><tr><th>Producto</th><th>Stock</th><th>Mínimo</th><th>Días</th><th>Estado</th></tr></thead><tbody>'+iv.crit.map(p=>`<tr><td>${p.p}</td><td style="font-family:'DM Mono',monospace">${p.s}</td><td style="font-family:'DM Mono',monospace;color:var(--dim)">${p.m}</td><td style="font-family:'DM Mono',monospace;color:var(--danger)">${p.d}d</td><td><span style="background:${p.e==='Crítico'?'rgba(217,64,64,.15)':'rgba(232,140,12,.15)'};color:${p.e==='Crítico'?'var(--danger)':'var(--warn)'};padding:3px 8px;border-radius:99px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700">${p.e}</span></td></tr>`).join('')+'</tbody>'
+  mkChart('ch-inv','pie',{labels:iv.dist.l,datasets:[{data:iv.dist.d,backgroundColor:['#4C8EF0','#2D42CC','#0DB87A','#E88C0C','#D94040','#7A90B4'],borderWidth:0}]},{cutout:'0%'})
+}
+
+function rMkt(n){
+  const m=n.mkt
+  document.getElementById('mkt-cards').innerHTML=m.cards.map(c=>`<div class="card"><div class="card-lbl">${c.l}</div><div class="card-val">${c.v}</div><div class="card-sub">${c.s}</div>${c.u!==null?`<div class="pill ${c.u===1?'pill-up':c.u===0?'pill-dn':'pill-ne'}">${c.t}</div>`:''}</div>`).join('')
+  mkChart('ch-roas','bar',{labels:m.roas.l,datasets:[{data:m.roas.d,backgroundColor:m.roas.d.map(v=>v>=3?'rgba(13,184,122,.5)':v>=1?'rgba(232,140,12,.5)':'rgba(217,64,64,.5)'),borderColor:m.roas.d.map(v=>v>=3?'#0DB87A':v>=1?'#E88C0C':'#D94040'),borderWidth:1,borderRadius:4}]})
+  const lb=['E','F','M','A','M','J','J','A','S','O','N','D']
+  mkChart('ch-mkt','line',{labels:lb,datasets:[{label:'Inversión',data:m.inv,borderColor:'#D94040',backgroundColor:'rgba(217,64,64,.08)',tension:.4,fill:true},{label:'Retorno',data:m.ret,borderColor:'#0DB87A',backgroundColor:'rgba(13,184,122,.08)',tension:.4,fill:true}]},{legend:true})
+}
+
+function rProy(n){
+  const p=n.proy
+  document.getElementById('proy-cards').innerHTML=p.cards.map(c=>`<div class="card"><div class="card-lbl">${c.l}</div><div class="card-val">${c.v}</div><div class="card-sub">${c.s}</div><div class="pill ${c.u===1?'pill-up':c.u===0?'pill-dn':'pill-ne'}">${c.t}</div></div>`).join('')
+  mkChart('ch-proy','line',{labels:p.lb,datasets:[{label:'Pesimista',data:p.p,borderColor:'#D94040',borderDash:[4,4],tension:.4,fill:false,pointRadius:3},{label:'Base',data:p.b,borderColor:'#4C8EF0',backgroundColor:'rgba(76,142,240,.08)',tension:.4,fill:true,pointRadius:4,borderWidth:2},{label:'Optimista',data:p.o,borderColor:'#0DB87A',borderDash:[4,4],tension:.4,fill:false,pointRadius:3}]},{legend:true,height:230})
+}
+
+function rAlertas(n){
+  document.getElementById('alertas-list').innerHTML=n.alertas.map(a=>`<div class="al"><div class="al-dot" style="background:${a.n==='critico'?'var(--danger)':a.n==='alto'?'var(--warn)':'var(--sky)'}"></div><div style="flex:1"><div class="al-title">${a.t}</div><div class="al-desc">${a.d}</div><div class="al-time">${a.time}</div></div><div class="al-badge ${a.n==='critico'?'bc':a.n==='alto'?'ba':'bi'}">${a.n==='critico'?'Crítica':a.n==='alto'?'Alta':'Info'}</div></div>`).join('')
+}
+
+// ═══ SIMULADOR ═══════════════════════════════════════════════
+function simular(){
+  if(!neg)return
+  const n=NG[neg],base=n.sim.base,margen=n.sim.margen
+  const precio=parseFloat(document.getElementById('sp').value)||0
+  const volumen=parseFloat(document.getElementById('sv2').value)||0
+  const pub=parseFloat(document.getElementById('spub').value)||0
+  const costo=parseFloat(document.getElementById('sc').value)||0
+  const ing=base*(1+precio/100)*(1+volumen/100)-base
+  const mar=(ing*margen/100)+(pub*2.5)+(base*costo/100*margen/100)
+  const roi=pub>0?(pub*2.5/pub).toFixed(1):null
+  const fmt=v=>Math.abs(v)>=1000000?'$'+(v/1000000).toFixed(1)+'M':Math.abs(v)>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v)
+  const rs=(id,v,sub)=>{document.getElementById(id).textContent=(v>=0?'+':'')+fmt(v);document.getElementById(id).style.color=v>=0?'#0DB87A':'#D94040';document.getElementById(id+'-sub').textContent=sub}
+  rs('sr-ing',ing,ing===0?'Ajustá los parámetros':`Sobre base de ${fmt(base)}/mes`)
+  rs('sr-mar',mar,mar===0?'—':`Con margen base del ${margen}%`)
+  document.getElementById('sr-roi').textContent=roi?roi+'x':'—'
+  document.getElementById('sr-roi-sub').textContent=roi?`Por cada $1 invertido`:'Ingresá inversión publicitaria'
+}
+
+// ═══ UTILS ════════════════════════════════════════════════════
+function mkChart(id,type,data,opts={}){
+  if(charts[id])try{charts[id].destroy()}catch(e){}
+  const co={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:!!opts.legend,labels:{color:'#7A90B4',font:{family:'DM Sans',size:11}}},tooltip:{backgroundColor:'rgba(9,20,37,.95)',titleColor:'#E8EEF8',bodyColor:'#7A90B4',borderColor:'rgba(255,255,255,.08)',borderWidth:1,titleFont:{family:'Sora',weight:'700'},bodyFont:{family:'DM Sans'},padding:10}},
+    scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#3A506E',font:{family:'DM Mono',size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#3A506E',font:{family:'DM Mono',size:10}}}}}
+  if(opts.cutout)co.cutout=opts.cutout
+  if(type==='doughnut'||type==='pie'){delete co.scales}
+  charts[id]=new Chart(document.getElementById(id),{type,data,options:co})
+}
+
+function sendWA(tel,nombre){
+  const num=(tel||'').replace(/\D/g,'')||'5493853142987'
+  const msg=encodeURIComponent(`Hola ${nombre}, soy Luciano de Levx Intelligence.\n\nPasamos a recordarte que no hemos recibido los datos de hoy en InsightPilot. ¿Podés cargarlos cuando tengas un momento?\n\nAny consulta, acá estamos.`)
+  window.open(`https://wa.me/${num}?text=${msg}`,'_blank')
+}
+
+function notif(msg,type){
+  const old=document.getElementById('__notif')
+  if(old)old.remove()
+  const cols={ok:'#0DB87A',warn:'#E88C0C',err:'#D94040',info:'#4C8EF0'}
+  const d=document.createElement('div')
+  d.id='__notif';d.className='notif'
+  d.innerHTML=`<div class="notif-dot" style="background:${cols[type]||cols.info}"></div><div>${msg}</div>`
+  d.onclick=()=>d.remove()
+  document.body.appendChild(d)
+  setTimeout(()=>{if(d.parentNode)d.remove()},4000)
+}
+
+function pdfLead(l){
+  const TC={inicial:'#4C8EF0',pro:'#2D42CC',copiloto:'#0DB87A'}
+  const TN={inicial:'Diagnóstico Inicial',pro:'Diagnóstico Pro',copiloto:'Copiloto Mensual'}
+  const c=TC[l.tier]||'#4C8EF0',R=TN[l.tier]||l.tier
+  const f=new Date(l.fecha||Date.now()).toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})
+  const LOGO=`<svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>`
+  const w=window.open('','_blank','width=860,height=900')
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Diagnóstico ${l.empresa}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;900&family=DM+Sans:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{background:#060E1A;color:#E8EEF8;font-family:'DM Sans',sans-serif;padding:40px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pbtn{position:fixed;top:20px;right:20px;background:#2D42CC;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+  @media print{.pbtn{display:none}}</style></head><body>
+  <button class="pbtn" onclick="window.print()">Imprimir / Guardar PDF</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:28px">
+    <div style="display:flex;align-items:center;gap:12px">${LOGO}<div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:900;color:#fff">InsightPilot</div><div style="font-size:10px;color:#3A506E">by Levx Intelligence</div></div></div>
+    <div style="text-align:right"><div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em">Diagnóstico SPIN</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:#3A506E;margin-top:3px">${f}</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;background:#091425;border-radius:12px;padding:18px 22px;margin-bottom:22px">
+    ${[{lb:'Nombre',v:l.nombre},{lb:'Empresa',v:l.empresa},{lb:'WhatsApp',v:l.tel}].map(d=>`<div><div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">${d.lb}</div><div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff">${d.v}</div></div>`).join('')}
+  </div>
+  <div style="background:linear-gradient(135deg,#091425,#0C1A30);border:1px solid ${c}35;border-radius:14px;padding:24px;margin-bottom:20px">
+    <div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Recomendación InsightPilot</div>
+    <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:12px">${R}</div>
+    <div style="display:flex;gap:10px">
+      <div style="background:${c}15;color:${c};border:1px solid ${c}30;padding:4px 12px;border-radius:99px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700">Urgencia: ${l.pct}%</div>
+      <div style="background:rgba(255,255,255,.06);color:#7A90B4;padding:4px 12px;border-radius:99px;font-size:10px">Segmento: ${({startup:'Startup',pyme:'PyME',mediana:'Mediana',grande:'Grande'})[l.seg]||l.seg}</div>
+    </div>
+  </div>
+  <div style="background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px">
+    <div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:14px">Diagnóstico SPIN — respuestas</div>
+    ${Object.entries(l.resp||{}).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px"><span style="color:#7A90B4">${k.toUpperCase()}</span><span style="font-weight:600">${v}</span></div>`).join('')}
+  </div>
+  <div style="margin-top:24px;background:#091425;border:1px solid rgba(76,142,240,.2);border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:4px">Siguiente paso</div><div style="font-size:12px;color:#7A90B4">Contactar por WhatsApp para agendar videollamada de 15 minutos</div></div>
+    <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#4C8EF0">+54 9 385 314 2987</div>
+  </div>
+  </body></html>`)
+  w.document.close()
+}
+</script>
+</body>
+</html>
