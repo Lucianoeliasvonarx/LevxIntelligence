@@ -5,8 +5,9 @@ export default function Page() {
       style={{
         width: "100vw",
         height: "100vh",
-        border: "none"
+        border: "none",
+        display: "block",
       }}
     />
-  )
+  );
 }
