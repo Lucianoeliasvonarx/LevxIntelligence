@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagnóstico InsightPilot</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060E1A;font-family:'DM Sans',sans-serif;color:#E8EEF8;min-height:100vh}
+
+/* CONTROLES */
+.ctrl{position:fixed;top:0;left:0;right:0;z-index:999;background:#091425;border-bottom:1px solid rgba(255,255,255,.08);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.ctrl-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#E8EEF8;display:flex;align-items:center;gap:10px}
+.ctrl-btns{display:flex;gap:10px}
+.btn-dl{padding:9px 20px;background:#0DB87A;color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(13,184,122,.3)}
+.btn-dl:hover{background:#0aa368}
+.btn-dl.loading{opacity:.7;pointer-events:none}
+.btn-edit{padding:9px 16px;background:rgba(255,255,255,.06);color:#7A90B4;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.btn-edit:hover{color:#E8EEF8}
+
+/* WRAPPER */
+.pdf-wrap{margin-top:60px;padding:30px;max-width:820px;margin-left:auto;margin-right:auto}
+
+/* PÁGINA */
+.page{background:#060E1A;width:100%;margin-bottom:40px;border-radius:4px;overflow:hidden;position:relative;page-break-after:always}
+.page::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2D42CC,#4C8EF0,#0DB87A)}
+
+/* HEADER */
+.pg-header{padding:32px 36px 24px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.pg-logo{display:flex;align-items:center;gap:11px}
+.pg-brand{font-family:'Sora',sans-serif;font-size:16px;font-weight:900;color:#fff}
+.pg-brand-sub{font-size:9px;color:#3A506E;letter-spacing:.06em}
+.pg-date{font-family:'DM Mono',monospace;font-size:11px;color:#3A506E;text-align:right}
+.pg-date-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+
+/* P1 HERO */
+.p1-hero{padding:40px 36px 32px;display:grid;grid-template-columns:1fr 220px;gap:28px}
+.p1-left{}
+.p1-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(45,66,204,.15);color:#7A9FFF;border:1px solid rgba(45,66,204,.25);border-radius:99px;padding:4px 12px;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
+.p1-empresa{font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.1;margin-bottom:6px}
+.p1-rubro{font-size:14px;color:#7A90B4;margin-bottom:24px}
+.p1-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.p1-info{background:rgba(12,26,48,.8);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px}
+.p1-info-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.p1-info-val{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff}
+
+/* SCORE SIDEBAR */
+.score-side{background:linear-gradient(160deg,rgba(45,66,204,.12),rgba(13,184,122,.06));border:1px solid rgba(76,142,240,.15);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center}
+.score-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.score-circle{width:110px;height:110px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:14px;position:relative}
+.score-circle::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--sc) calc(var(--pct)*1%),rgba(255,255,255,.05) 0);padding:6px;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),black calc(100% - 10px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),black calc(100% - 10px))}
+.score-num{font-family:'Sora',sans-serif;font-size:34px;font-weight:900;color:#fff;line-height:1;position:relative;z-index:1}
+.score-den{font-size:10px;color:#7A90B4;position:relative;z-index:1}
+.score-status{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;text-align:center;margin-bottom:4px}
+.score-trend{font-family:'DM Mono',monospace;font-size:10px;text-align:center}
+.score-areas{width:100%;margin-top:14px}
+.area-r{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.area-r:last-child{margin-bottom:0}
+.area-n{font-size:10px;color:#7A90B4;width:72px;flex-shrink:0}
+.area-t{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.area-f{height:100%;border-radius:99px}
+.area-v{font-family:'DM Mono',monospace;font-size:10px;color:#E8EEF8;width:24px;text-align:right;flex-shrink:0}
+
+/* RECOMENDACION */
+.p1-rec{margin:0 36px 28px;background:linear-gradient(135deg,rgba(45,66,204,.1),rgba(12,26,48,.8));border:1px solid rgba(45,66,204,.25);border-radius:14px;padding:22px 26px;position:relative;overflow:hidden}
+.p1-rec::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#2D42CC,#4C8EF0)}
+.p1-rec-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#4C8EF0;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.p1-rec-tier{font-family:'Sora',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:12px}
+.p1-rec-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;padding:3px 10px;border-radius:99px}
+
+/* P1 CARDS */
+.p1-cards{padding:0 36px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:rgba(9,20,37,.8);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:15px 16px}
+.kpi-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.kpi-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:#7A90B4;margin-bottom:5px}
+.kpi-pill{display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:99px}
+.up{background:rgba(13,184,122,.12);color:#0DB87A}
+.dn{background:rgba(217,64,64,.12);color:#D94040}
+.wa{background:rgba(232,140,12,.12);color:#E88C0C}
+.ne{background:rgba(122,144,180,.1);color:#7A90B4}
+
+/* P2 HALLAZGOS */
+.p2-grid{padding:28px 36px;display:grid;grid-template-columns:1fr 200px;gap:24px}
+.alerta{background:rgba(9,20,37,.8);border-radius:12px;padding:15px 16px;margin-bottom:12px;display:flex;gap:12px}
+.al-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.al-title{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.al-desc{font-size:11px;color:#7A90B4;line-height:1.5}
+.al-badge{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:99px;margin-top:6px;display:inline-block}
+.bc{background:rgba(217,64,64,.15);color:#D94040;border:1px solid rgba(217,64,64,.25)}
+.ba{background:rgba(232,140,12,.15);color:#E88C0C;border:1px solid rgba(232,140,12,.25)}
+.bi{background:rgba(76,142,240,.12);color:#4C8EF0;border:1px solid rgba(76,142,240,.2)}
+.bg{background:rgba(13,184,122,.12);color:#0DB87A;border:1px solid rgba(13,184,122,.2)}
+
+.side-card{background:rgba(9,20,37,.8);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:15px;margin-bottom:12px}
+.side-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.side-val{font-family:'Sora',sans-serif;font-size:20px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:2px}
+.side-sub{font-size:10px;color:#7A90B4}
+
+/* P3 IMPACTO */
+.p3-impact{padding:28px 36px}
+.impact-hero{background:linear-gradient(135deg,rgba(217,64,64,.08),rgba(9,20,37,.8));border:1px solid rgba(217,64,64,.2);border-radius:14px;padding:24px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.impact-lbl{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.impact-val{font-family:'Sora',sans-serif;font-size:30px;font-weight:900;letter-spacing:-.02em;line-height:1;margin-bottom:4px}
+.impact-sub{font-size:11px;color:#7A90B4}
+.p3-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.col-box{background:rgba(9,20,37,.8);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px}
+.col-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;margin-bottom:12px}
+.col-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;font-size:11px;color:#7A90B4;line-height:1.5}
+.col-item::before{content:'→';color:#4C8EF0;font-weight:700;flex-shrink:0;margin-top:1px}
+.p3-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+/* P4 CTA */
+.p4-cta{padding:32px 36px}
+.cta-hero{background:linear-gradient(135deg,rgba(45,66,204,.12),rgba(13,184,122,.06));border:1px solid rgba(76,142,240,.15);border-radius:16px;padding:28px;margin-bottom:24px;text-align:center;position:relative;overflow:hidden}
+.cta-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#2D42CC,#4C8EF0,#0DB87A)}
+.cta-tag{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#4C8EF0;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.cta-headline{font-family:'Sora',sans-serif;font-size:24px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:10px}
+.cta-sub{font-size:13px;color:#7A90B4;line-height:1.6;max-width:500px;margin:0 auto 20px}
+.cta-price{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;background:rgba(45,66,204,.2);border:1px solid rgba(45,66,204,.3);border-radius:99px;padding:6px 20px;display:inline-block}
+
+.p4-contacts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.contact-card{background:rgba(9,20,37,.8);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px;display:flex;align-items:center;gap:14px}
+.contact-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#3A506E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.contact-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.contact-sub{font-size:11px;color:#7A90B4;margin-top:2px}
+
+.p4-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+.step{background:rgba(9,20,37,.8);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;text-align:center}
+.step-num{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#2D42CC;margin-bottom:6px;line-height:1}
+.step-title{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:#fff;margin-bottom:4px}
+.step-desc{font-size:10px;color:#7A90B4;line-height:1.4}
+
+.p4-footer{border-top:1px solid rgba(255,255,255,.06);padding-top:20px;display:flex;align-items:center;justify-content:space-between}
+.p4-footer-brand{display:flex;align-items:center;gap:10px}
+.p4-footer-right{font-family:'DM Mono',monospace;font-size:10px;color:#3A506E;text-align:right}
+</style>
+</head>
+<body>
+
+<!-- CONTROLES -->
+<div class="ctrl">
+  <div class="ctrl-title">
+    <svg width="20" height="22" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+    InsightPilot — Diagnóstico de negocio
+  </div>
+  <div class="ctrl-btns">
+    <button class="btn-edit" onclick="toggleEdit()">Editar datos</button>
+    <button class="btn-dl" id="dl-btn" onclick="descargar()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Descargar PDF
+    </button>
+  </div>
+</div>
+
+<!-- PANEL EDICIÓN -->
+<div id="edit-panel" style="display:none;position:fixed;top:53px;right:0;bottom:0;width:300px;background:#091425;border-left:1px solid rgba(255,255,255,.08);z-index:998;overflow-y:auto;padding:20px">
+  <div style="font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;margin-bottom:16px">Datos del cliente</div>
+  <script>
+  const campos = [
+    {id:'empresa',label:'Empresa',val:'[Nombre de la empresa]'},
+    {id:'dueno',label:'Dueño / Responsable',val:'[Nombre del dueño]'},
+    {id:'rubro',label:'Rubro',val:'Mayorista · Salta'},
+    {id:'tier',label:'Tier recomendado',val:'Copiloto Mensual'},
+    {id:'score',label:'Health Score (0-100)',val:'62'},
+    {id:'urgencia',label:'Urgencia (%)',val:'78'},
+    {id:'segmento',label:'Segmento',val:'PyME Familiar'},
+    {id:'ing_nom',label:'Ingresos nominales',val:'$8.4M'},
+    {id:'ing_real',label:'Ingresos reales',val:'$7.15M'},
+    {id:'margen',label:'Margen neto',val:'18.4%'},
+    {id:'impacto_min',label:'Impacto USD mínimo',val:'$2.000'},
+    {id:'impacto_max',label:'Impacto USD máximo',val:'$8.000'},
+    {id:'alerta1',label:'Alerta crítica 1',val:'Stock crítico — quiebre en 4 días'},
+    {id:'alerta1d',label:'Descripción alerta 1',val:'Aceite girasol x24: 42 unidades. Con demanda de 12/día, el quiebre ocurre el jueves.'},
+    {id:'alerta2',label:'Alerta crítica 2',val:'Dependencia 38% en 1 cliente'},
+    {id:'alerta2d',label:'Descripción alerta 2',val:'Supermercado Andino representa el 38% de ingresos. Si reduce pedidos, impacto de $3.2M/mes.'},
+    {id:'oport',label:'Oportunidad detectada',val:'Agosto — temporada alta (+18%)'},
+    {id:'oport_d',label:'Descripción oportunidad',val:'Históricamente las ventas suben 18% en agosto. Preparar stock esta semana.'},
+    {id:'accion1',label:'Acción 1',val:'Emitir orden de compra de aceite girasol hoy antes de las 14hs.'},
+    {id:'accion2',label:'Acción 2',val:'Contactar a Distribuidora Pérez — 18 días sin comprar.'},
+    {id:'accion3',label:'Acción 3',val:'Revisar segmentación Meta Ads — ROAS 2.4x por debajo del umbral.'},
+  ]
+  document.write(campos.map(c=>`
+    <div style="margin-bottom:12px">
+      <label style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#7A90B4;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px">${c.label}</label>
+      <input id="f_${c.id}" value="${c.val}" oninput="actualizar()" style="width:100%;padding:8px 10px;background:rgba(12,26,48,.8);border:1px solid rgba(255,255,255,.08);border-radius:7px;color:#E8EEF8;font-size:12px;font-family:'DM Sans',sans-serif;outline:none">
+    </div>`).join(''))
+  </script>
+  <button onclick="actualizar()" style="width:100%;padding:10px;background:#2D42CC;color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px">Actualizar PDF</button>
+</div>
+
+<!-- PDF CONTENT -->
+<div class="pdf-wrap" id="pdf-content">
+
+<!-- ═══ PÁGINA 1 ═══ -->
+<div class="page" id="page1">
+  <div class="pg-header">
+    <div class="pg-logo">
+      <svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div class="pg-brand">InsightPilot</div><div class="pg-brand-sub">by Levx Intelligence</div></div>
+    </div>
+    <div class="pg-date"><div class="pg-date-lbl">Diagnóstico generado</div><span id="pg-fecha"></span></div>
+  </div>
+
+  <div class="p1-hero">
+    <div class="p1-left">
+      <div class="p1-tag"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Diagnóstico SPIN — InsightPilot</div>
+      <div class="p1-empresa" id="d-empresa">[Nombre de la empresa]</div>
+      <div class="p1-rubro" id="d-rubro">Mayorista · Salta</div>
+      <div class="p1-info-grid">
+        <div class="p1-info"><div class="p1-info-lbl">Responsable</div><div class="p1-info-val" id="d-dueno">[Nombre del dueño]</div></div>
+        <div class="p1-info"><div class="p1-info-lbl">Segmento</div><div class="p1-info-val" id="d-seg">PyME Familiar</div></div>
+        <div class="p1-info"><div class="p1-info-lbl">Urgencia detectada</div><div class="p1-info-val" style="color:#E88C0C" id="d-urg">78%</div></div>
+        <div class="p1-info"><div class="p1-info-lbl">Asesor</div><div class="p1-info-val">Luciano Elias</div></div>
+      </div>
+    </div>
+    <div class="score-side">
+      <div class="score-lbl">Health Score</div>
+      <div class="score-circle" id="score-circle" style="--pct:62;--sc:#E88C0C">
+        <div class="score-num" id="d-score">62</div>
+        <div class="score-den">/100</div>
+      </div>
+      <div class="score-status" id="score-status">Requiere atención</div>
+      <div class="score-trend" id="score-trend" style="color:#D94040">↓ -4 pts esta semana</div>
+      <div class="score-areas" style="margin-top:16px">
+        <div class="area-r"><span class="area-n">Ventas</span><div class="area-t"><div class="area-f" style="width:58%;background:#4C8EF0"></div></div><span class="area-v">58</span></div>
+        <div class="area-r"><span class="area-n">Inventario</span><div class="area-t"><div class="area-f" style="width:41%;background:#D94040"></div></div><span class="area-v">41</span></div>
+        <div class="area-r"><span class="area-n">Marketing</span><div class="area-t"><div class="area-f" style="width:70%;background:#E88C0C"></div></div><span class="area-v">70</span></div>
+        <div class="area-r"><span class="area-n">Finanzas</span><div class="area-t"><div class="area-f" style="width:65%;background:#0DB87A"></div></div><span class="area-v">65</span></div>
+        <div class="area-r"><span class="area-n">Operaciones</span><div class="area-t"><div class="area-f" style="width:72%;background:#4C8EF0"></div></div><span class="area-v">72</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p1-rec">
+    <div class="p1-rec-lbl">Recomendación InsightPilot</div>
+    <div class="p1-rec-tier" id="d-tier">Copiloto Mensual</div>
+    <div class="p1-rec-pills">
+      <span class="pill" style="background:rgba(13,184,122,.12);color:#0DB87A;border:1px solid rgba(13,184,122,.2)" id="d-urgpill">Urgencia: 78%</span>
+      <span class="pill" style="background:rgba(76,142,240,.1);color:#4C8EF0;border:1px solid rgba(76,142,240,.2)" id="d-segpill">PyME Familiar</span>
+      <span class="pill" style="background:rgba(45,66,204,.12);color:#7A9FFF;border:1px solid rgba(45,66,204,.2)">Diagnóstico SPIN completado</span>
+    </div>
+  </div>
+
+  <div class="p1-cards">
+    <div class="kpi"><div class="kpi-lbl">Ingresos nominales</div><div class="kpi-val" id="d-ing-nom">$8.4M</div><div class="kpi-sub">Este mes</div><span class="kpi-pill up">+7.7% nominal</span></div>
+    <div class="kpi"><div class="kpi-lbl">Ingresos reales</div><div class="kpi-val" style="color:#E88C0C" id="d-ing-real">$7.15M</div><div class="kpi-sub">Ajustado por inflación</div><span class="kpi-pill wa">IPC 4.2%/mes</span></div>
+    <div class="kpi"><div class="kpi-lbl">Margen neto</div><div class="kpi-val" id="d-margen">18.4%</div><div class="kpi-sub">Objetivo: 22%</div><span class="kpi-pill dn">-3.6pp del objetivo</span></div>
+  </div>
+</div>
+
+<!-- ═══ PÁGINA 2 ═══ -->
+<div class="page" id="page2">
+  <div class="pg-header">
+    <div class="pg-logo">
+      <svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div class="pg-brand">InsightPilot</div><div class="pg-brand-sub">by Levx Intelligence</div></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:#3A506E">Hallazgos del diagnóstico — Página 2/4</div>
+  </div>
+  <div class="p2-grid">
+    <div>
+      <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:900;color:#fff;margin-bottom:4px">Hallazgos del diagnóstico</div>
+      <div style="font-size:12px;color:#7A90B4;margin-bottom:20px">Lo que encontramos al analizar tu negocio. Ordenado por impacto.</div>
+
+      <div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#D94040;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Alertas críticas</div>
+      <div class="alerta" style="border:1px solid rgba(217,64,64,.25)">
+        <div class="al-dot" style="background:#D94040"></div>
+        <div><div class="al-title" id="d-al1">Stock crítico — quiebre en 4 días</div><div class="al-desc" id="d-al1d">Aceite girasol x24: 42 unidades. Con demanda de 12/día, el quiebre ocurre el jueves.</div><span class="al-badge bc">Crítica</span></div>
+      </div>
+      <div class="alerta" style="border:1px solid rgba(217,64,64,.25)">
+        <div class="al-dot" style="background:#D94040"></div>
+        <div><div class="al-title" id="d-al2">Dependencia 38% en 1 cliente</div><div class="al-desc" id="d-al2d">Supermercado Andino representa el 38% de ingresos. Si reduce pedidos, impacto de $3.2M/mes.</div><span class="al-badge bc">Crítica</span></div>
+      </div>
+
+      <div style="font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#4C8EF0;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 10px">Oportunidades</div>
+      <div class="alerta" style="border:1px solid rgba(76,142,240,.2)">
+        <div class="al-dot" style="background:#4C8EF0"></div>
+        <div><div class="al-title" id="d-op">Agosto — temporada alta (+18%)</div><div class="al-desc" id="d-opd">Históricamente las ventas suben 18% en agosto por vuelta a clases y reposición. Preparar stock esta semana.</div><span class="al-badge bi">Oportunidad</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="side-card"><div class="side-lbl">Capital en riesgo</div><div class="side-val" style="color:#D94040">$3.2M</div><div class="side-sub">Concentrado en 1 cliente</div></div>
+      <div class="side-card"><div class="side-lbl">Días hasta quiebre</div><div class="side-val" style="color:#D94040">4 días</div><div class="side-sub">Producto crítico</div></div>
+      <div class="side-card"><div class="side-lbl">Pérdida real inflación</div><div class="side-val" style="color:#E88C0C">$1.25M</div><div class="side-sub">Este período</div></div>
+      <div class="side-card"><div class="side-lbl">ROAS Marketing</div><div class="side-val" style="color:#E88C0C">2.8x</div><div class="side-sub">Por debajo del óptimo</div></div>
+      <div class="side-card" style="border-color:rgba(13,184,122,.2)"><div class="side-lbl">Oportunidad agosto</div><div class="side-val" style="color:#0DB87A">+18%</div><div class="side-sub">Crecimiento histórico</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PÁGINA 3 ═══ -->
+<div class="page" id="page3">
+  <div class="pg-header">
+    <div class="pg-logo">
+      <svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div class="pg-brand">InsightPilot</div><div class="pg-brand-sub">by Levx Intelligence</div></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:#3A506E">Impacto económico — Página 3/4</div>
+  </div>
+  <div class="p3-impact">
+    <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:900;color:#fff;margin-bottom:4px">Impacto económico estimado</div>
+    <div style="font-size:12px;color:#7A90B4;margin-bottom:20px">Cuánto puede mejorar tu negocio con decisiones correctas.</div>
+
+    <div class="impact-hero">
+      <div>
+        <div class="impact-lbl" style="color:#D94040">Lo que perdés sin acción</div>
+        <div class="impact-val" style="color:#D94040" id="d-imp-min">$2.000 USD/mes</div>
+        <div class="impact-sub">Estimado conservador basado en diagnóstico</div>
+      </div>
+      <div>
+        <div class="impact-lbl" style="color:#0DB87A">Potencial con InsightPilot</div>
+        <div class="impact-val" style="color:#0DB87A" id="d-imp-max">$8.000 USD/mes</div>
+        <div class="impact-sub">Escenario optimista a 90 días</div>
+      </div>
+    </div>
+
+    <div class="p3-cols">
+      <div class="col-box" style="border-color:rgba(217,64,64,.2)">
+        <div class="col-title" style="color:#D94040">Sin cambios — qué sigue pasando</div>
+        <div class="col-item">Stock se quiebra y perdés ventas sin recuperar clientes afectados</div>
+        <div class="col-item">Dependencia de 1 cliente sigue creciendo sin diversificación</div>
+        <div class="col-item">Inflación continúa erosionando márgenes reales cada mes</div>
+        <div class="col-item">Capital inmovilizado en inventario sin rotación óptima</div>
+      </div>
+      <div class="col-box" style="border-color:rgba(13,184,122,.2)">
+        <div class="col-title" style="color:#0DB87A">Con InsightPilot — qué cambia</div>
+        <div class="col-item">Alertas anticipadas antes de que el problema ocurra</div>
+        <div class="col-item">Diversificación de cartera guiada con datos reales</div>
+        <div class="col-item">Precios ajustados automáticamente a inflación real</div>
+        <div class="col-item">Rotación de inventario optimizada semana a semana</div>
+      </div>
+    </div>
+
+    <div class="p3-metrics">
+      <div class="kpi"><div class="kpi-lbl">Margen objetivo</div><div class="kpi-val" style="color:#0DB87A">22%</div><div class="kpi-sub">Alcanzable en 60 días</div><span class="kpi-pill up">+3.6pp mejora</span></div>
+      <div class="kpi"><div class="kpi-lbl">Rotación objetivo</div><div class="kpi-val" style="color:#4C8EF0">12 días</div><div class="kpi-sub">Actual: 18 días</div><span class="kpi-pill up">-6 días</span></div>
+      <div class="kpi"><div class="kpi-lbl">ROI del servicio</div><div class="kpi-val" style="color:#0DB87A">5.3x</div><div class="kpi-sub">Impacto vs costo</div><span class="kpi-pill up">Mes 1</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PÁGINA 4 ═══ -->
+<div class="page" id="page4">
+  <div class="pg-header">
+    <div class="pg-logo">
+      <svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div class="pg-brand">InsightPilot</div><div class="pg-brand-sub">by Levx Intelligence</div></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:#3A506E">Próximos pasos — Página 4/4</div>
+  </div>
+  <div class="p4-cta">
+    <div class="cta-hero">
+      <div class="cta-tag">¿Qué hacemos ahora?</div>
+      <div class="cta-headline">3 acciones para esta semana</div>
+      <div class="cta-sub">Basadas en el diagnóstico SPIN. Aplicables hoy, con los recursos que ya tenés.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Esta semana</div>
+        <div class="step-desc" id="d-a1">Emitir orden de compra de aceite girasol hoy antes de las 14hs.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Esta semana</div>
+        <div class="step-desc" id="d-a2">Contactar a Distribuidora Pérez — 18 días sin comprar.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Esta semana</div>
+        <div class="step-desc" id="d-a3">Revisar segmentación Meta Ads — ROAS 2.4x por debajo del umbral.</div>
+      </div>
+    </div>
+
+    <div class="p4-contacts">
+      <div class="contact-card">
+        <div class="contact-icon" style="background:rgba(13,184,122,.12)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0DB87A" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </div>
+        <div><div class="contact-lbl">WhatsApp directo</div><div class="contact-val">+54 9 385 314 2987</div><div class="contact-sub">Respuesta en menos de 2 horas</div></div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon" style="background:rgba(76,142,240,.1)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div><div class="contact-lbl">Videollamada</div><div class="contact-val">15 minutos, sin costo</div><div class="contact-sub">levxintelligence.com</div></div>
+      </div>
+    </div>
+
+    <div class="p4-steps">
+      <div class="step"><div class="step-num" style="color:#4C8EF0">1</div><div class="step-title">Quiz SPIN</div><div class="step-desc">Diagnóstico completado</div></div>
+      <div class="step"><div class="step-num" style="color:#4C8EF0">2</div><div class="step-title">Reporte</div><div class="step-desc">Este documento</div></div>
+      <div class="step"><div class="step-num" style="color:#E88C0C">3</div><div class="step-title">Videollamada</div><div class="step-desc">15 min esta semana</div></div>
+      <div class="step"><div class="step-num" style="color:#0DB87A">4</div><div class="step-title">Arrancar</div><div class="step-desc">Primera semana con datos</div></div>
+    </div>
+
+    <div class="p4-footer">
+      <div class="p4-footer-brand">
+        <svg width="20" height="22" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".8"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".6"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".4"/></svg>
+        <div><div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:900;color:#fff">InsightPilot</div><div style="font-size:9px;color:#3A506E">Los datos de tu negocio, convertidos en decisiones.</div></div>
+      </div>
+      <div class="p4-footer-right">levxintelligence.com<br>hola@levx.com.ar</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pdf-wrap -->
+
+<script>
+// Fecha
+document.getElementById('pg-fecha').textContent = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})
+
+function toggleEdit(){
+  const p = document.getElementById('edit-panel')
+  const w = document.getElementById('pdf-content')
+  if(p.style.display==='none'){p.style.display='block';w.style.marginRight='310px'}
+  else{p.style.display='none';w.style.marginRight='auto'}
+  actualizar()
+}
+
+function g(id){return (document.getElementById('f_'+id)||{}).value||''}
+
+function actualizar(){
+  const sets = [
+    ['d-empresa','empresa'],['d-rubro','rubro'],['d-dueno','dueno'],
+    ['d-tier','tier'],['d-seg','segmento'],['d-urg','urgencia'],
+    ['d-ing-nom','ing_nom'],['d-ing-real','ing_real'],['d-margen','margen'],
+    ['d-al1','alerta1'],['d-al1d','alerta1d'],['d-al2','alerta2'],['d-al2d','alerta2d'],
+    ['d-op','oport'],['d-opd','oport_d'],
+    ['d-imp-min','impacto_min'],['d-imp-max','impacto_max'],
+    ['d-a1','accion1'],['d-a2','accion2'],['d-a3','accion3'],
+  ]
+  sets.forEach(([elId,fId])=>{
+    const el=document.getElementById(elId)
+    const val=g(fId)
+    if(el&&val)el.textContent=val
+  })
+  // urgencia pills
+  const urg=g('urgencia')
+  const seg=g('segmento')
+  const urgP=document.getElementById('d-urgpill')
+  const segP=document.getElementById('d-segpill')
+  if(urgP)urgP.textContent='Urgencia: '+urg+'%'
+  if(segP)segP.textContent=seg
+
+  // score
+  const score=parseInt(g('score'))||62
+  const sc=document.getElementById('d-score')
+  const scc=document.getElementById('score-circle')
+  const ss=document.getElementById('score-status')
+  if(sc)sc.textContent=score
+  if(scc){
+    const color=score>=75?'#0DB87A':score>=50?'#E88C0C':'#D94040'
+    scc.style.setProperty('--pct',score)
+    scc.style.setProperty('--sc',color)
+  }
+  if(ss)ss.textContent=score>=75?'Negocio saludable':score>=50?'Requiere atención':'Situación crítica'
+}
+
+function descargar(){
+  const btn=document.getElementById('dl-btn')
+  btn.innerHTML='Generando...'
+  btn.classList.add('loading')
+  document.getElementById('edit-panel').style.display='none'
+  document.getElementById('pdf-content').style.marginRight='auto'
+  const empresa=(g('empresa')||'InsightPilot').replace(/\s+/g,'_').replace(/[^\w]/g,'')
+  const opt={
+    margin:0,
+    filename:`Diagnostico_InsightPilot_${empresa}.pdf`,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:1.8,backgroundColor:'#060E1A',useCORS:true,logging:false},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }
+  html2pdf().set(opt).from(document.getElementById('pdf-content')).save().then(()=>{
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Descargado'
+    btn.classList.remove('loading')
+    setTimeout(()=>{btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar PDF'},3000)
+  })
+}
+</script>
+</body>
+</html>

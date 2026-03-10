@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cargar datos — InsightPilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#060E1A;--ink-1:#091425;--ink-2:#0C1A30;--indigo:#2D42CC;--sky:#4C8EF0;--ok:#0DB87A;--warn:#E88C0C;--danger:#D94040;--text:#E8EEF8;--dim:#7A90B4;--xs:#3A506E;--bs:rgba(255,255,255,.055)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text)}
+
+/* LOGIN */
+#login{position:fixed;inset:0;z-index:100;background:var(--ink);display:flex;align-items:center;justify-content:center}
+.lb{width:100%;max-width:400px;padding:36px;background:var(--ink-1);border:1px solid var(--bs);border-radius:18px}
+.lb-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px}
+.lb-inp{width:100%;padding:11px 14px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:9px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px;transition:border-color .15s}
+.lb-inp:focus{border-color:rgba(76,142,240,.5)}
+.lb-sel{width:100%;padding:11px 14px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:9px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px}
+.lb-sel option{background:#091425}
+.lb-btn{width:100%;padding:13px;background:var(--indigo);color:#fff;border:none;border-radius:9px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(45,66,204,.35)}
+.lb-btn:hover{background:#2438bf}
+.lb-err{font-size:12px;color:var(--danger);text-align:center;margin-top:8px;display:none}
+
+/* HEADER */
+header{background:var(--ink-1);border-bottom:1px solid var(--bs);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.h-brand{display:flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-size:13px;font-weight:900;color:#fff}
+.h-biz{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--sky)}
+.h-out{padding:7px 14px;background:transparent;border:1px solid var(--bs);color:var(--xs);border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.h-out:hover{color:var(--danger);border-color:rgba(217,64,64,.3)}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:32px 24px}
+.page-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--dim);margin-bottom:28px}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--ink-1);border:1px solid var(--bs);border-radius:11px;padding:5px}
+.tab{flex:1;padding:9px;text-align:center;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--dim);transition:all .15s;border:1px solid transparent}
+.tab.on{background:var(--indigo);color:#fff;border-color:rgba(45,66,204,.4);box-shadow:0 4px 14px rgba(45,66,204,.3)}
+
+/* SECTION */
+.sec{display:none}
+.sec.on{display:block}
+.sec-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-title svg{opacity:.7}
+
+/* FORM */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.fgrid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.fgrid-1{margin-bottom:20px}
+.card{background:var(--ink-1);border:1px solid var(--bs);border-radius:13px;padding:20px 22px;margin-bottom:16px}
+.card-head{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bs);display:flex;align-items:center;gap:8px}
+.flbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px}
+.finp{width:100%;padding:10px 13px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:8px;color:var(--text);font-size:13px;font-family:'DM Mono',monospace;outline:none;transition:border-color .15s}
+.finp:focus{border-color:rgba(76,142,240,.5)}
+.fsel{width:100%;padding:10px 13px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:8px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.fsel option{background:#091425}
+.fhint{font-size:11px;color:var(--xs);margin-top:4px}
+
+/* TABLA DINAMICA */
+.dt-wrap{margin-bottom:14px}
+.dt{width:100%;border-collapse:collapse}
+.dt th{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--xs);text-transform:uppercase;letter-spacing:.1em;padding:8px 10px;border-bottom:1px solid var(--bs);text-align:left}
+.dt td{padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.03)}
+.dt td input,.dt td select{width:100%;padding:7px 9px;background:rgba(12,26,48,.8);border:1px solid var(--bs);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Mono',monospace;outline:none}
+.dt td input:focus,.dt td select:focus{border-color:rgba(76,142,240,.4)}
+.btn-add-row{padding:7px 13px;background:rgba(76,142,240,.1);color:var(--sky);border:1px solid rgba(76,142,240,.2);border-radius:7px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-add-row:hover{background:rgba(76,142,240,.2)}
+.btn-del{padding:4px 8px;background:rgba(217,64,64,.1);color:var(--danger);border:1px solid rgba(217,64,64,.2);border-radius:5px;font-size:11px;cursor:pointer}
+
+/* SAVE */
+.save-bar{position:sticky;bottom:0;background:var(--ink-1);border-top:1px solid var(--bs);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40}
+.save-info{font-size:12px;color:var(--dim)}
+.save-info span{color:var(--ok);font-weight:600}
+.btn-save{padding:11px 28px;background:var(--ok);color:#fff;border:none;border-radius:9px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 18px rgba(13,184,122,.3)}
+.btn-save:hover{background:#0aa368}
+.btn-save.done{background:var(--sky)}
+
+/* NOTIF */
+.notif{position:fixed;top:12px;right:16px;z-index:9999;background:var(--ink-1);border:1px solid var(--bs);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.4);animation:ni .3s ease}
+@keyframes ni{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* PROGRESO */
+.prog-bar{height:3px;background:var(--bs);border-radius:99px;margin-bottom:20px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--ok));border-radius:99px;transition:width .4s ease}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="lb">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+      <svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      <div><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:900;color:#fff">Cargar datos</div><div style="font-size:10px;color:var(--xs)">InsightPilot · Levx Intelligence</div></div>
+    </div>
+    <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">Ingresá tus datos del mes</div>
+    <div style="font-size:12px;color:var(--dim);margin-bottom:22px">En 5 minutos tu panel queda actualizado.</div>
+    <label class="lb-lbl">Tu empresa</label>
+    <select class="lb-sel" id="sel">
+      <option value="">— Seleccioná tu negocio —</option>
+      <option value="DN">Distribuidora Norte</option>
+      <option value="FE">Ferretería El Centro</option>
+      <option value="RI">Ropa & Estilo SA</option>
+    </select>
+    <label class="lb-lbl">Contraseña</label>
+    <input class="lb-inp" id="pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lb-btn" onclick="doLogin()">Ingresar</button>
+    <div class="lb-err" id="lerr">Empresa o contraseña incorrecta.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <header>
+    <div class="h-brand">
+      <svg width="18" height="20" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>
+      InsightPilot
+    </div>
+    <div class="h-biz" id="h-biz">—</div>
+    <button class="h-out" onclick="doLogout()">Cerrar sesión</button>
+  </header>
+
+  <div class="main">
+    <div class="page-title">Carga de datos del mes</div>
+    <div class="page-sub" id="page-sub">Completá cada sección. Cuanto más preciso, mejor el análisis.</div>
+
+    <!-- PROGRESO -->
+    <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab on" id="t0" onclick="showTab(0)">Ventas</div>
+      <div class="tab" id="t1" onclick="showTab(1)">Inventario</div>
+      <div class="tab" id="t2" onclick="showTab(2)">Marketing</div>
+      <div class="tab" id="t3" onclick="showTab(3)">Finanzas</div>
+      <div class="tab" id="t4" onclick="showTab(4)">Clientes</div>
+    </div>
+
+    <!-- ══ VENTAS ══ -->
+    <div class="sec on" id="sec-0">
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Ingresos del mes
+        </div>
+        <div class="fgrid">
+          <div>
+            <label class="flbl">Ventas totales del mes ($)</label>
+            <input class="finp" id="v_total" type="number" placeholder="8400000" oninput="actualizar()">
+            <div class="fhint">Total facturado, sin IVA si preferís</div>
+          </div>
+          <div>
+            <label class="flbl">Ventas del mes anterior ($)</label>
+            <input class="finp" id="v_anterior" type="number" placeholder="7800000" oninput="actualizar()">
+          </div>
+          <div>
+            <label class="flbl">Cantidad de ventas / pedidos</label>
+            <input class="finp" id="v_cantidad" type="number" placeholder="186" oninput="actualizar()">
+          </div>
+          <div>
+            <label class="flbl">Costo total de ventas ($)</label>
+            <input class="finp" id="v_costo" type="number" placeholder="6800000" oninput="actualizar()">
+            <div class="fhint">Para calcular margen bruto</div>
+          </div>
+        </div>
+        <div id="v-calc" style="display:none;background:rgba(13,184,122,.06);border:1px solid rgba(13,184,122,.15);border-radius:10px;padding:14px 16px;margin-top:4px">
+          <div style="font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ok);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">InsightPilot calcula</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div><div style="font-size:10px;color:var(--dim)">Variación</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800" id="v-var">—</div></div>
+            <div><div style="font-size:10px;color:var(--dim)">Ticket promedio</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800" id="v-ticket">—</div></div>
+            <div><div style="font-size:10px;color:var(--dim)">Margen bruto</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800" id="v-margen">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Ventas por canal (%)
+        </div>
+        <div class="fgrid-3">
+          <div><label class="flbl">Canal 1 — nombre</label><input class="finp" id="canal1_n" placeholder="Mostrador" style="font-family:'DM Sans',sans-serif"></div>
+          <div><label class="flbl">Canal 2 — nombre</label><input class="finp" id="canal2_n" placeholder="WhatsApp" style="font-family:'DM Sans',sans-serif"></div>
+          <div><label class="flbl">Canal 3 — nombre</label><input class="finp" id="canal3_n" placeholder="Teléfono" style="font-family:'DM Sans',sans-serif"></div>
+          <div><label class="flbl">Canal 1 — % ventas</label><input class="finp" id="canal1_p" type="number" placeholder="45"></div>
+          <div><label class="flbl">Canal 2 — % ventas</label><input class="finp" id="canal2_p" type="number" placeholder="28"></div>
+          <div><label class="flbl">Canal 3 — % ventas</label><input class="finp" id="canal3_p" type="number" placeholder="18"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Top productos / servicios
+        </div>
+        <div class="dt-wrap">
+          <table class="dt" id="prod-tabla">
+            <thead><tr><th>Producto / Servicio</th><th>Ventas ($)</th><th>Margen (%)</th><th></th></tr></thead>
+            <tbody id="prod-body"></tbody>
+          </table>
+          <button class="btn-add-row" onclick="addProd()">+ Agregar producto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INVENTARIO ══ -->
+    <div class="sec" id="sec-1">
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          Resumen de inventario
+        </div>
+        <div class="fgrid">
+          <div>
+            <label class="flbl">Valor total del stock ($)</label>
+            <input class="finp" id="inv_total" type="number" placeholder="3200000">
+          </div>
+          <div>
+            <label class="flbl">Cantidad de SKUs / productos</label>
+            <input class="finp" id="inv_skus" type="number" placeholder="284">
+          </div>
+          <div>
+            <label class="flbl">Rotación promedio (días)</label>
+            <input class="finp" id="inv_rotacion" type="number" placeholder="18">
+            <div class="fhint">Días promedio que tarda en venderse</div>
+          </div>
+          <div>
+            <label class="flbl">SKUs sin movimiento (+30 días)</label>
+            <input class="finp" id="inv_sin_mov" type="number" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D94040" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Productos con stock crítico
+        </div>
+        <div class="dt-wrap">
+          <table class="dt" id="crit-tabla">
+            <thead><tr><th>Producto</th><th>Stock actual</th><th>Stock mínimo</th><th>Ventas/día</th><th></th></tr></thead>
+            <tbody id="crit-body"></tbody>
+          </table>
+          <button class="btn-add-row" onclick="addCrit()">+ Agregar producto crítico</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MARKETING ══ -->
+    <div class="sec" id="sec-2">
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Inversión publicitaria del mes
+        </div>
+        <div class="fgrid-3">
+          <div>
+            <label class="flbl">Canal 1 — plataforma</label>
+            <input class="finp" id="mkt1_n" placeholder="Meta Ads" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div>
+            <label class="flbl">Canal 2 — plataforma</label>
+            <input class="finp" id="mkt2_n" placeholder="TikTok Ads" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div>
+            <label class="flbl">Canal 3 — plataforma</label>
+            <input class="finp" id="mkt3_n" placeholder="Google Ads" style="font-family:'DM Sans',sans-serif">
+          </div>
+          <div>
+            <label class="flbl">Inversión ($)</label>
+            <input class="finp" id="mkt1_inv" type="number" placeholder="45000" oninput="calcRoas()">
+          </div>
+          <div>
+            <label class="flbl">Inversión ($)</label>
+            <input class="finp" id="mkt2_inv" type="number" placeholder="0" oninput="calcRoas()">
+          </div>
+          <div>
+            <label class="flbl">Inversión ($)</label>
+            <input class="finp" id="mkt3_inv" type="number" placeholder="0" oninput="calcRoas()">
+          </div>
+          <div>
+            <label class="flbl">Ventas atribuidas ($)</label>
+            <input class="finp" id="mkt1_ret" type="number" placeholder="126000" oninput="calcRoas()">
+          </div>
+          <div>
+            <label class="flbl">Ventas atribuidas ($)</label>
+            <input class="finp" id="mkt2_ret" type="number" placeholder="0" oninput="calcRoas()">
+          </div>
+          <div>
+            <label class="flbl">Ventas atribuidas ($)</label>
+            <input class="finp" id="mkt3_ret" type="number" placeholder="0" oninput="calcRoas()">
+          </div>
+        </div>
+        <div id="roas-calc" style="display:none;background:rgba(45,66,204,.06);border:1px solid rgba(45,66,204,.15);border-radius:10px;padding:14px 16px;margin-top:4px">
+          <div style="font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--sky);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">ROAS calculado por InsightPilot</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap" id="roas-vals"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">Clientes nuevos este mes</div>
+        <div class="fgrid">
+          <div>
+            <label class="flbl">Nuevos clientes</label>
+            <input class="finp" id="mkt_nuevos" type="number" placeholder="12">
+          </div>
+          <div>
+            <label class="flbl">Costo de adquisición ($)</label>
+            <input class="finp" id="mkt_cac" type="number" placeholder="242">
+            <div class="fhint">Total invertido ÷ nuevos clientes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FINANZAS ══ -->
+    <div class="sec" id="sec-3">
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Flujo de caja del mes
+        </div>
+        <div class="fgrid">
+          <div>
+            <label class="flbl">Saldo en caja / cuenta ($)</label>
+            <input class="finp" id="fin_saldo" type="number" placeholder="420000">
+          </div>
+          <div>
+            <label class="flbl">Gastos fijos mensuales ($)</label>
+            <input class="finp" id="fin_fijos" type="number" placeholder="820000">
+            <div class="fhint">Sueldos, alquiler, servicios</div>
+          </div>
+          <div>
+            <label class="flbl">Pagos a proveedores ($)</label>
+            <input class="finp" id="fin_prov" type="number" placeholder="2100000">
+          </div>
+          <div>
+            <label class="flbl">Cuentas por cobrar ($)</label>
+            <input class="finp" id="fin_cobrar" type="number" placeholder="1800000">
+            <div class="fhint">Lo que te deben clientes</div>
+          </div>
+          <div>
+            <label class="flbl">Impuestos del período ($)</label>
+            <input class="finp" id="fin_imp" type="number" placeholder="420000">
+          </div>
+          <div>
+            <label class="flbl">Otros gastos ($)</label>
+            <input class="finp" id="fin_otros" type="number" placeholder="95000">
+          </div>
+        </div>
+        <div id="flujo-calc" style="display:none;background:rgba(13,184,122,.06);border:1px solid rgba(13,184,122,.15);border-radius:10px;padding:14px 16px;margin-top:4px">
+          <div style="font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ok);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">InsightPilot calcula tu flujo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px" id="flujo-vals"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENTES ══ -->
+    <div class="sec" id="sec-4">
+      <div class="card">
+        <div class="card-head">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4C8EF0" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Cartera de clientes
+        </div>
+        <div class="fgrid">
+          <div>
+            <label class="flbl">Clientes activos este mes</label>
+            <input class="finp" id="cli_activos" type="number" placeholder="24">
+          </div>
+          <div>
+            <label class="flbl">Clientes sin comprar +30 días</label>
+            <input class="finp" id="cli_inactivos" type="number" placeholder="5">
+          </div>
+          <div>
+            <label class="flbl">% ventas del cliente más grande</label>
+            <input class="finp" id="cli_concentracion" type="number" placeholder="38">
+            <div class="fhint">Concentración de riesgo</div>
+          </div>
+          <div>
+            <label class="flbl">Mora promedio (días)</label>
+            <input class="finp" id="cli_mora" type="number" placeholder="12">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">Top clientes</div>
+        <div class="dt-wrap">
+          <table class="dt" id="cli-tabla">
+            <thead><tr><th>Nombre del cliente</th><th>Ventas mes ($)</th><th>Días sin comprar</th><th>Mora (días)</th><th></th></tr></thead>
+            <tbody id="cli-body"></tbody>
+          </table>
+          <button class="btn-add-row" onclick="addCli()">+ Agregar cliente</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- SAVE BAR -->
+  <div class="save-bar">
+    <div class="save-info">Los datos se guardan en tu navegador. <span>Siempre disponibles en tu panel.</span></div>
+    <button class="btn-save" id="save-btn" onclick="guardar()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Guardar datos
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+const CLAVE='cliente123'
+const EMPRESAS={DN:'Distribuidora Norte',FE:'Ferretería El Centro',RI:'Ropa & Estilo SA'}
+let empresa=null
+
+function doLogin(){
+  const k=document.getElementById('sel').value
+  const p=document.getElementById('pass').value
+  if(k&&p===CLAVE){empresa=k;iniciar()}
+  else{document.getElementById('lerr').style.display='block'}
+}
+
+function doLogout(){
+  empresa=null
+  document.getElementById('app').style.display='none'
+  document.getElementById('login').style.display='flex'
+  document.getElementById('pass').value=''
+}
+
+function iniciar(){
+  document.getElementById('login').style.display='none'
+  document.getElementById('app').style.display='block'
+  document.getElementById('h-biz').textContent=EMPRESAS[empresa]
+  document.getElementById('page-sub').textContent='Cargando datos para '+EMPRESAS[empresa]+' — Mes actual'
+  // Agregar filas iniciales
+  addProd();addProd();addProd()
+  addCrit()
+  addCli();addCli()
+  // Cargar datos guardados si existen
+  cargarGuardados()
+  calcVentas()
+}
+
+let tabActual=0
+function showTab(i){
+  for(let j=0;j<5;j++){
+    document.getElementById('t'+j).classList.toggle('on',j===i)
+    document.getElementById('sec-'+j).classList.toggle('on',j===i)
+  }
+  tabActual=i
+  const pct=[20,40,60,80,100]
+  document.getElementById('prog').style.width=pct[i]+'%'
+}
+
+// ── TABLAS DINÁMICAS ──
+function addProd(){
+  const tb=document.getElementById('prod-body')
+  const r=document.createElement('tr')
+  r.innerHTML=`<td><input placeholder="Nombre del producto"></td><td><input type="number" placeholder="0"></td><td><input type="number" placeholder="0"></td><td><button class="btn-del" onclick="this.closest('tr').remove()">×</button></td>`
+  tb.appendChild(r)
+}
+
+function addCrit(){
+  const tb=document.getElementById('crit-body')
+  const r=document.createElement('tr')
+  r.innerHTML=`<td><input placeholder="Producto crítico"></td><td><input type="number" placeholder="0"></td><td><input type="number" placeholder="0"></td><td><input type="number" placeholder="0"></td><td><button class="btn-del" onclick="this.closest('tr').remove()">×</button></td>`
+  tb.appendChild(r)
+}
+
+function addCli(){
+  const tb=document.getElementById('cli-body')
+  const r=document.createElement('tr')
+  r.innerHTML=`<td><input placeholder="Nombre del cliente"></td><td><input type="number" placeholder="0"></td><td><input type="number" placeholder="0"></td><td><input type="number" placeholder="0"></td><td><button class="btn-del" onclick="this.closest('tr').remove()">×</button></td>`
+  tb.appendChild(r)
+}
+
+// ── CÁLCULOS EN TIEMPO REAL ──
+function g(id){return parseFloat(document.getElementById(id)?.value)||0}
+function gs(id){return document.getElementById(id)?.value||''}
+
+function actualizar(){calcVentas();calcFlujo()}
+
+function calcVentas(){
+  const total=g('v_total'),ant=g('v_anterior'),cant=g('v_cantidad'),costo=g('v_costo')
+  const calc=document.getElementById('v-calc')
+  if(!total){calc.style.display='none';return}
+  calc.style.display='block'
+  const varPct=ant?((total-ant)/ant*100).toFixed(1):'—'
+  const ticket=cant?Math.round(total/cant):0
+  const margen=costo&&total?((total-costo)/total*100).toFixed(1):'—'
+  const vc=document.getElementById('v-var')
+  vc.textContent=(varPct!=='—'?(varPct>=0?'+':'')+varPct+'%':'—')
+  vc.style.color=varPct>=0?'#0DB87A':'#D94040'
+  document.getElementById('v-ticket').textContent=ticket?'$'+Math.round(ticket/1000)+'K':'—'
+  const vm=document.getElementById('v-margen')
+  vm.textContent=margen!=='—'?margen+'%':'—'
+  vm.style.color=margen>=20?'#0DB87A':margen>=10?'#E88C0C':'#D94040'
+}
+
+function calcRoas(){
+  const vals=document.getElementById('roas-vals')
+  const calc=document.getElementById('roas-calc')
+  const canales=[[g('mkt1_inv'),g('mkt1_ret'),gs('mkt1_n')],[g('mkt2_inv'),g('mkt2_ret'),gs('mkt2_n')],[g('mkt3_inv'),g('mkt3_ret'),gs('mkt3_n')]]
+  const activos=canales.filter(c=>c[0]>0)
+  if(!activos.length){calc.style.display='none';return}
+  calc.style.display='block'
+  vals.innerHTML=activos.map(([inv,ret,nom])=>{
+    const roas=inv>0?(ret/inv).toFixed(2)+'x':'—'
+    const col=parseFloat(roas)>=3?'#0DB87A':parseFloat(roas)>=1?'#E88C0C':'#D94040'
+    return `<div><div style="font-size:10px;color:var(--dim)">${nom||'Canal'}</div><div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:${col}">${roas}</div><div style="font-size:10px;color:var(--xs)">$${Math.round(inv/1000)}K invertidos</div></div>`
+  }).join('')
+}
+
+function calcFlujo(){
+  const saldo=g('fin_saldo'),cobrar=g('fin_cobrar')
+  const total_ing=g('v_total')+cobrar
+  const total_eg=g('fin_fijos')+g('fin_prov')+g('fin_imp')+g('fin_otros')
+  if(!total_eg&&!total_ing){document.getElementById('flujo-calc').style.display='none';return}
+  document.getElementById('flujo-calc').style.display='block'
+  const gap=total_ing-total_eg
+  const fmt=v=>v>=1000000?'$'+(v/1000000).toFixed(1)+'M':v>=1000?'$'+Math.round(v/1000)+'K':'$'+Math.round(v)
+  document.getElementById('flujo-vals').innerHTML=`
+    <div><div style="font-size:10px;color:var(--dim)">Total ingresos</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--ok)">${fmt(total_ing)}</div></div>
+    <div><div style="font-size:10px;color:var(--dim)">Total egresos</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--danger)">${fmt(total_eg)}</div></div>
+    <div><div style="font-size:10px;color:var(--dim)">Resultado</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:${gap>=0?'var(--ok)':'var(--danger)'}">${gap>=0?'+':''}${fmt(gap)}</div></div>`
+}
+
+// ── GUARDAR / CARGAR ──
+function guardar(){
+  const datos={
+    empresa,
+    fecha:new Date().toISOString(),
+    ventas:{total:g('v_total'),anterior:g('v_anterior'),cantidad:g('v_cantidad'),costo:g('v_costo'),canal1_n:gs('canal1_n'),canal1_p:g('canal1_p'),canal2_n:gs('canal2_n'),canal2_p:g('canal2_p'),canal3_n:gs('canal3_n'),canal3_p:g('canal3_p')},
+    inventario:{total:g('inv_total'),skus:g('inv_skus'),rotacion:g('inv_rotacion'),sin_mov:g('inv_sin_mov')},
+    marketing:{m1_n:gs('mkt1_n'),m1_inv:g('mkt1_inv'),m1_ret:g('mkt1_ret'),m2_n:gs('mkt2_n'),m2_inv:g('mkt2_inv'),m2_ret:g('mkt2_ret'),m3_n:gs('mkt3_n'),m3_inv:g('mkt3_inv'),m3_ret:g('mkt3_ret'),nuevos:g('mkt_nuevos'),cac:g('mkt_cac')},
+    finanzas:{saldo:g('fin_saldo'),fijos:g('fin_fijos'),prov:g('fin_prov'),cobrar:g('fin_cobrar'),imp:g('fin_imp'),otros:g('fin_otros')},
+    clientes:{activos:g('cli_activos'),inactivos:g('cli_inactivos'),concentracion:g('cli_concentracion'),mora:g('cli_mora')},
+    productos:leerTabla('prod-body',['nombre','ventas','margen']),
+    criticos:leerTabla('crit-body',['producto','stock','minimo','vxdia']),
+    top_clientes:leerTabla('cli-body',['nombre','ventas','diassincomprar','mora'])
+  }
+  const key='insightpilot_datos_'+empresa
+  try{
+    localStorage.setItem(key,JSON.stringify(datos))
+  } catch(e) {}
+  // Guardar en sesión también
+  window._datos=datos
+
+  notif('Datos guardados correctamente','ok')
+  const btn=document.getElementById('save-btn')
+  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Guardado'
+  btn.style.background='var(--sky)'
+  setTimeout(()=>{btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar datos';btn.style.background='var(--ok)'},3000)
+}
+
+function leerTabla(tbId,cols){
+  const rows=[...document.getElementById(tbId).querySelectorAll('tr')]
+  return rows.map(r=>{
+    const inputs=[...r.querySelectorAll('input')]
+    const obj={}
+    cols.forEach((c,i)=>{if(inputs[i])obj[c]=inputs[i].value})
+    return obj
+  }).filter(r=>Object.values(r).some(v=>v))
+}
+
+function cargarGuardados(){
+  const key='insightpilot_datos_'+empresa
+  let datos=null
+  try{datos=JSON.parse(localStorage.getItem(key)||'null')}catch(e){}
+  if(!datos)return
+  const v=datos.ventas||{},inv=datos.inventario||{},mkt=datos.marketing||{},fin=datos.finanzas||{},cli=datos.clientes||{}
+  const setV=(id,val)=>{const el=document.getElementById(id);if(el&&val)el.value=val}
+  Object.entries(v).forEach(([k,val])=>setV('v_'+k.replace('_n','_n').replace('_p','_p'),val))
+  // ventas
+  setV('v_total',v.total);setV('v_anterior',v.anterior);setV('v_cantidad',v.cantidad);setV('v_costo',v.costo)
+  setV('canal1_n',v.canal1_n);setV('canal1_p',v.canal1_p);setV('canal2_n',v.canal2_n);setV('canal2_p',v.canal2_p);setV('canal3_n',v.canal3_n);setV('canal3_p',v.canal3_p)
+  setV('inv_total',inv.total);setV('inv_skus',inv.skus);setV('inv_rotacion',inv.rotacion);setV('inv_sin_mov',inv.sin_mov)
+  setV('mkt1_n',mkt.m1_n);setV('mkt1_inv',mkt.m1_inv);setV('mkt1_ret',mkt.m1_ret)
+  setV('mkt2_n',mkt.m2_n);setV('mkt2_inv',mkt.m2_inv);setV('mkt2_ret',mkt.m2_ret)
+  setV('mkt3_n',mkt.m3_n);setV('mkt3_inv',mkt.m3_inv);setV('mkt3_ret',mkt.m3_ret)
+  setV('mkt_nuevos',mkt.nuevos);setV('mkt_cac',mkt.cac)
+  setV('fin_saldo',fin.saldo);setV('fin_fijos',fin.fijos);setV('fin_prov',fin.prov);setV('fin_cobrar',fin.cobrar);setV('fin_imp',fin.imp);setV('fin_otros',fin.otros)
+  setV('cli_activos',cli.activos);setV('cli_inactivos',cli.inactivos);setV('cli_concentracion',cli.concentracion);setV('cli_mora',cli.mora)
+  notif('Datos del mes anterior cargados','info')
+  calcVentas();calcRoas();calcFlujo()
+}
+
+function notif(msg,tipo){
+  const old=document.getElementById('__n');if(old)old.remove()
+  const cols={ok:'#0DB87A',warn:'#E88C0C',err:'#D94040',info:'#4C8EF0'}
+  const d=document.createElement('div');d.id='__n';d.className='notif'
+  d.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${cols[tipo]||cols.info};flex-shrink:0"></div><div>${msg}</div>`
+  d.onclick=()=>d.remove();document.body.appendChild(d)
+  setTimeout(()=>{if(d.parentNode)d.remove()},4000)
+}
+
+// Calcular en tiempo real al escribir en finanzas
+document.addEventListener('input',e=>{
+  if(['fin_fijos','fin_prov','fin_imp','fin_otros','fin_cobrar','v_total'].includes(e.target.id))calcFlujo()
+})
+</script>
+</body>
+</html>
