@@ -1,5 +1,12 @@
-import { redirect } from "next/navigation";
-
 export default function Page() {
-  redirect("/insightpilot.html");
+  return (
+    <iframe
+      src="/insightpilot.html"
+      style={{
+        width: "100vw",
+        height: "100vh",
+        border: "none"
+      }}
+    />
+  )
 }
