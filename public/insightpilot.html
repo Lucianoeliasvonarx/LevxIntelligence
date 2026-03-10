@@ -320,6 +320,97 @@ footer{background:var(--ink-1);border-top:1px solid var(--border-s);padding:36px
 .footer-links a{font-size:13px;color:var(--text-dim);transition:color .15s}
 .footer-links a:hover{color:#fff}
 .footer-copy{font-size:11px;color:rgba(255,255,255,.18);font-family:'DM Mono',monospace}
+
+/* ══ QUIZ SECTION ══════════════════════════════════════════ */
+#quiz-section{background:var(--ink);position:relative;overflow:hidden;border-top:1px solid rgba(255,255,255,.06)}
+.glow-q{position:absolute;pointer-events:none;border-radius:50%;filter:blur(130px)}
+.glow-q1{width:500px;height:500px;background:#2D42CC;opacity:.07;top:-150px;right:-150px}
+.glow-q2{width:350px;height:350px;background:#4C8EF0;opacity:.06;bottom:-80px;left:-80px}
+#quiz-section-header{padding:64px 24px 0;text-align:center}
+#quiz-pbar{height:2px;background:rgba(255,255,255,.04);display:none}
+#quiz-pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--indigo),var(--sky));transition:width .6s cubic-bezier(.4,0,.2,1)}
+#quiz-subnav{height:44px;display:none;align-items:center;justify-content:space-between;padding:0 36px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(6,14,26,.6);backdrop-filter:blur(12px)}
+#quiz-fase-dots{display:flex;align-items:center;gap:5px}
+.qfd{width:6px;height:6px;border-radius:50%;background:#3A506E;transition:all .4s}
+.qfd.done{background:var(--sky);box-shadow:0 0 8px rgba(76,142,240,.5)}
+.qfd.active{background:#fff;width:20px;border-radius:3px}
+#quiz-nav-meta{font-family:'DM Mono',monospace;font-size:11px;color:#3A506E;letter-spacing:.04em}
+#quiz-app{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:85vh;padding:48px 24px}
+.qscreen{display:none;width:100%;max-width:620px;animation:qfadeUp .35s ease both}
+.qscreen.active{display:block}
+@keyframes qfadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.q-intro-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(76,142,240,.08);border:1px solid rgba(76,142,240,.2);border-radius:99px;padding:6px 15px;margin-bottom:28px}
+.q-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:#0DB87A;animation:qpulse 2s infinite}
+@keyframes qpulse{0%,100%{opacity:1}50%{opacity:.4}}
+.q-eyebrow-text{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--sky);letter-spacing:.12em;text-transform:uppercase}
+.q-intro-h1{font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px}
+.q-intro-h1 em{font-style:normal;color:transparent;background:linear-gradient(135deg,var(--sky),#7eb8ff);-webkit-background-clip:text;background-clip:text}
+.q-intro-body{font-size:16px;color:#7A90B4;line-height:1.75;margin-bottom:10px;max-width:500px}
+.q-intro-note{font-size:12px;color:#3A506E;margin-bottom:36px}
+.q-spin-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:36px}
+.q-spin-card{background:linear-gradient(135deg,#091425,#0C1A30);border:1px solid rgba(255,255,255,.055);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color .2s}
+.q-spin-card:hover{border-color:rgba(255,255,255,.09)}
+.q-spin-letter{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:13px;font-weight:800}
+.q-spin-name{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff}
+.q-spin-desc{font-size:11px;color:#7A90B4;margin-top:1px}
+.q-btn-cta{width:100%;background:var(--indigo);color:#fff;border:none;border-radius:12px;padding:16px;cursor:pointer;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;box-shadow:0 12px 40px rgba(45,66,204,.4);transition:all .2s;position:relative;overflow:hidden}
+.q-btn-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.08),transparent);pointer-events:none}
+.q-btn-cta:hover{transform:translateY(-1px);box-shadow:0 16px 48px rgba(45,66,204,.5)}
+.q-header{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.q-fase-chip{display:flex;align-items:center;gap:8px;border-radius:99px;padding:5px 12px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.q-counter{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:#3A506E}
+.q-texto{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.3;letter-spacing:-.01em;margin-bottom:6px}
+.q-sub{font-size:13px;color:#7A90B4;margin-bottom:24px;line-height:1.6}
+.q-opciones{display:flex;flex-direction:column;gap:10px}
+.q-op{padding:15px 18px;border-radius:12px;cursor:pointer;background:#091425;border:1px solid rgba(255,255,255,.055);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;transition:all .15s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.q-op:hover{background:rgba(76,142,240,.06);border-color:rgba(76,142,240,.3)}
+.q-op-label{font-size:14px;font-weight:600;color:#E8EEF8;line-height:1.4;margin-bottom:3px}
+.q-op-sub{font-size:12px;color:#7A90B4;line-height:1.4}
+.q-op-arrow{flex-shrink:0;margin-top:3px;opacity:.4;transition:opacity .15s}
+.q-op:hover .q-op-arrow{opacity:1}
+.q-btn-back{background:transparent;border:none;color:#3A506E;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;margin:18px auto 0;display:block;transition:color .2s}
+.q-btn-back:hover{color:#7A90B4}
+.q-contact-wrap{max-width:440px;margin:0 auto}
+.q-check-circle{width:52px;height:52px;border-radius:14px;margin:0 auto 18px;background:rgba(13,184,122,.1);border:1px solid rgba(13,184,122,.25);display:flex;align-items:center;justify-content:center}
+.q-contact-h{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:8px;letter-spacing:-.01em}
+.q-contact-sub{font-size:13px;color:#7A90B4;text-align:center;line-height:1.7;margin-bottom:26px}
+.q-field-wrap{margin-bottom:13px}
+.q-field-label{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:#7A90B4;text-transform:uppercase;letter-spacing:.09em;display:block;margin-bottom:6px}
+.q-field-input{width:100%;padding:12px 14px;background:rgba(12,26,48,.8);border:1px solid rgba(255,255,255,.055);border-radius:9px;color:#E8EEF8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.q-field-input:focus{border-color:rgba(76,142,240,.5)}
+.q-field-input::placeholder{color:#3A506E}
+.q-btn-ver{width:100%;background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:14px;cursor:not-allowed;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;opacity:.3;transition:all .2s;letter-spacing:-.01em}
+.q-btn-ver.ready{opacity:1;cursor:pointer;box-shadow:0 10px 36px rgba(45,66,204,.4)}
+.q-btn-ver.ready:hover{transform:translateY(-1px)}
+.q-confirm-wrap{max-width:480px;margin:0 auto;text-align:center}
+.q-confirm-icon{width:72px;height:72px;border-radius:20px;margin:0 auto 22px;background:rgba(13,184,122,.1);border:1px solid rgba(13,184,122,.2);display:flex;align-items:center;justify-content:center}
+.q-confirm-h{font-family:'Sora',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:12px}
+.q-confirm-body{font-size:15px;color:#7A90B4;line-height:1.75;margin-bottom:28px}
+.q-confirm-card{background:#091425;border:1px solid rgba(255,255,255,.055);border-radius:12px;padding:20px 24px;text-align:left;display:flex;align-items:center;gap:14px}
+.q-wa-icon{width:40px;height:40px;border-radius:10px;background:rgba(13,184,122,.1);border:1px solid rgba(13,184,122,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.q-conf-lead-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.q-conf-lead-meta{font-size:12px;color:#7A90B4}
+#q-admin-panel{display:none;width:100%;max-width:900px;animation:qfadeUp .35s ease both}
+#q-admin-panel.active{display:block}
+.q-admin-h{font-family:'Sora',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:6px}
+.q-admin-sub{font-size:14px;color:#7A90B4;margin-bottom:28px}
+.q-lead-empty{text-align:center;padding:60px 20px;color:#3A506E;font-size:14px}
+.q-lead-card{background:#091425;border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:20px 24px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;transition:border-color .2s}
+.q-lead-card:hover{border-color:rgba(255,255,255,.09)}
+.q-lead-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.q-lead-empresa{font-size:13px;color:#7A90B4;margin-bottom:4px}
+.q-lead-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.q-lead-tier-badge{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:3px 10px;border-radius:99px}
+.q-lead-fecha{font-family:'DM Mono',monospace;font-size:10px;color:#3A506E}
+.q-lead-actions{display:flex;gap:8px}
+.q-btn-sm{padding:8px 14px;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;gap:6px}
+.q-btn-pdf{background:rgba(76,142,240,.12);color:#4C8EF0;border:1px solid rgba(76,142,240,.2)}
+.q-btn-pdf:hover{background:rgba(76,142,240,.22)}
+.q-btn-wa2{background:rgba(13,184,122,.12);color:#0DB87A;border:1px solid rgba(13,184,122,.2)}
+.q-btn-wa2:hover{background:rgba(13,184,122,.22)}
+.q-btn-clear-leads{background:transparent;border:1px solid rgba(255,255,255,.055);color:#3A506E;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.q-btn-clear-leads:hover{color:#D94040;border-color:rgba(217,64,64,.3)}
+.q-admin-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 </style>
 </head>
 <body>
@@ -344,9 +435,9 @@ footer{background:var(--ink-1);border-top:1px solid var(--border-s);padding:36px
     <li><a href="#pillars">Producto</a></li>
     <li><a href="#capabilities">Capacidades</a></li>
     <li><a href="#integrations">Integraciones</a></li>
-    <li><a href="#cta">Contacto</a></li>
+    <li><a href="#quiz">Diagnóstico</a></li>
   </ul>
-  <a href="#cta" class="nav-cta">Solicitar demo</a>
+  <a href="#quiz" class="nav-cta">Diagnóstico gratis</a>
 </nav>
 
 <!-- HERO -->
@@ -380,10 +471,10 @@ footer{background:var(--ink-1);border-top:1px solid var(--border-s);padding:36px
         InsightPilot analiza stock, ventas y operaciones en tiempo real. Detecta riesgos, identifica oportunidades y te entrega exactamente lo que necesitás hacer esta semana.
       </p>
       <div class="hero-btns anim-up" data-delay="5">
-        <<a href="/quiz" class="btn-primary">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-  Hacer diagnóstico gratuito
-</a>
+        <a href="#quiz" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Hacer el diagnóstico gratuito
+        </a>
         <a href="#capabilities" class="btn-secondary">
           Ver capacidades
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -742,26 +833,132 @@ footer{background:var(--ink-1);border-top:1px solid var(--border-s);padding:36px
   </div>
 </section>
 
-<!-- CTA -->
-<section id="cta">
-  <div class="section-inner">
-    <div class="cta-inner">
-      <div class="eyebrow" style="justify-content:center">Empezar ahora</div>
-      <h2>¿Querés saber cómo está tu negocio <span class="accent">en realidad</span>?</h2>
-      <p>Solicitá una demo sin compromiso. En 48 horas tenés tu primer diagnóstico con los datos reales de tu empresa.</p>
-      <div class="cta-btns">
-        <a href="/quiz" class="btn-primary">
-  Hacer diagnóstico gratuito
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-</a>
-        <a href="https://wa.me/5493853142987" target="_blank" class="btn-secondary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Hablar con el equipo
-        </a>
-      </div>
-      <div class="cta-note">Sin compromiso · Sin tarjeta de crédito · Resultados desde el día 1</div>
-    </div>
+<!-- QUIZ -->
+<section id="quiz">
+<div id="quiz-section">
+  <div class="glow-q glow-q1"></div>
+  <div class="glow-q glow-q2"></div>
+
+  <div id="quiz-section-header">
+    <div class="eyebrow" style="justify-content:center;margin-bottom:14px">Diagnóstico gratuito</div>
+    <h2 style="text-align:center;margin-bottom:12px">¿Cuánto le cuesta a tu negocio<br>tomar decisiones <span class="accent">sin datos?</span></h2>
+    <p style="text-align:center;color:var(--text-dim);font-size:16px;max-width:520px;margin:0 auto 0">12 preguntas. 4 minutos. Resultado por WhatsApp.</p>
   </div>
+
+  <div id="quiz-pbar"><div id="quiz-pfill"></div></div>
+  <div id="quiz-subnav">
+    <div id="quiz-fase-dots"></div>
+    <div id="quiz-nav-meta"></div>
+  </div>
+
+  <div id="quiz-app">
+
+    <!-- INTRO -->
+    <div class="qscreen active" id="qscreen-intro" style="text-align:center">
+      <div class="q-intro-eyebrow">
+        <div class="q-eyebrow-dot"></div>
+        <span class="q-eyebrow-text">Diagnóstico gratuito · 4 minutos</span>
+      </div>
+      <h1 class="q-intro-h1">¿Cuánto le cuesta a tu negocio<br>tomar decisiones <em>sin datos?</em></h1>
+      <p class="q-intro-body">12 preguntas estructuradas sobre tu operación. Al final recibís por WhatsApp un diagnóstico personalizado con los problemas específicos que te están costando dinero y el plan exacto para resolverlos.</p>
+      <p class="q-intro-note">Sin registro. Sin tarjeta. Confidencial.</p>
+      <div class="q-spin-row">
+        <div class="q-spin-card">
+          <div class="q-spin-letter" style="background:rgba(76,142,240,.12);border:1px solid rgba(76,142,240,.25);color:#4C8EF0">S</div>
+          <div><div class="q-spin-name">Situación</div><div class="q-spin-desc">El estado real de tu negocio</div></div>
+        </div>
+        <div class="q-spin-card">
+          <div class="q-spin-letter" style="background:rgba(232,140,12,.12);border:1px solid rgba(232,140,12,.25);color:#E88C0C">P</div>
+          <div><div class="q-spin-name">Problema</div><div class="q-spin-desc">Dónde está el dolor real</div></div>
+        </div>
+        <div class="q-spin-card">
+          <div class="q-spin-letter" style="background:rgba(217,64,64,.12);border:1px solid rgba(217,64,64,.25);color:#D94040">I</div>
+          <div><div class="q-spin-name">Implicancia</div><div class="q-spin-desc">El costo de no resolverlo</div></div>
+        </div>
+        <div class="q-spin-card">
+          <div class="q-spin-letter" style="background:rgba(13,184,122,.12);border:1px solid rgba(13,184,122,.25);color:#0DB87A">N</div>
+          <div><div class="q-spin-name">Necesidad</div><div class="q-spin-desc">El valor de la solución</div></div>
+        </div>
+      </div>
+      <button class="q-btn-cta" onclick="qIniciar()">Comenzar diagnóstico</button>
+    </div>
+
+    <!-- PREGUNTA -->
+    <div class="qscreen" id="qscreen-pregunta">
+      <div class="q-header">
+        <div class="q-fase-chip" id="q-chip"></div>
+        <div id="q-fase-desc" style="font-size:11px;color:#7A90B4"></div>
+        <div class="q-counter" id="q-counter"></div>
+      </div>
+      <div class="q-texto" id="q-texto"></div>
+      <div class="q-sub" id="q-sub"></div>
+      <div class="q-opciones" id="q-opciones"></div>
+      <button class="q-btn-back" id="q-btn-back" onclick="qVolver()" style="display:none">← Volver</button>
+    </div>
+
+    <!-- CONTACTO -->
+    <div class="qscreen" id="qscreen-contacto">
+      <div class="q-contact-wrap">
+        <div class="q-check-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0DB87A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="q-contact-h">Diagnóstico completo</div>
+        <p class="q-contact-sub">Ingresá tus datos y en breves minutos recibís el reporte por WhatsApp.</p>
+        <div class="q-field-wrap">
+          <label class="q-field-label">Nombre completo</label>
+          <input class="q-field-input" id="q-inp-nombre" type="text" placeholder="María García" oninput="qCheckContact()">
+        </div>
+        <div class="q-field-wrap">
+          <label class="q-field-label">Empresa</label>
+          <input class="q-field-input" id="q-inp-empresa" type="text" placeholder="Distribuidora García SRL" oninput="qCheckContact()">
+        </div>
+        <div class="q-field-wrap">
+          <label class="q-field-label">WhatsApp (con código de área)</label>
+          <input class="q-field-input" id="q-inp-tel" type="tel" placeholder="+54 9 385 000 0000" oninput="qCheckContact()">
+        </div>
+        <button class="q-btn-ver" id="q-btn-ver" onclick="qConfirmar()">Recibir mi diagnóstico →</button>
+      </div>
+    </div>
+
+    <!-- CONFIRMACION -->
+    <div class="qscreen" id="qscreen-confirm">
+      <div class="q-confirm-wrap">
+        <div class="q-confirm-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0DB87A" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.19 2 2 0 012.2 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.3 7.76a16 16 0 006 6l1.13-1.14a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+          </svg>
+        </div>
+        <div class="q-confirm-h">En breves recibís tu resultado</div>
+        <p class="q-confirm-body">Tu diagnóstico fue procesado. Un especialista de Levx Intelligence va a enviarte el reporte completo a tu WhatsApp en los próximos minutos.</p>
+        <div class="q-confirm-card">
+          <div class="q-wa-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0DB87A" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+          </div>
+          <div>
+            <div class="q-conf-lead-name" id="q-conf-name"></div>
+            <div class="q-conf-lead-meta" id="q-conf-meta"></div>
+          </div>
+        </div>
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);text-align:center">
+        <span onclick="qCheckAdminAccess()" style="font-size:10px;color:#3A506E;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.04em">·</span>
+      </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="q-admin-panel">
+      <div class="q-admin-toolbar">
+        <div>
+          <div class="q-admin-h">Panel de consultas</div>
+          <div class="q-admin-sub">Generá y enviá cada diagnóstico desde acá</div>
+        </div>
+        <button class="q-btn-clear-leads" onclick="qLimpiarLeads()">Limpiar todo</button>
+      </div>
+      <div id="q-leads-list"></div>
+    </div>
+
+  </div><!-- /quiz-app -->
+</div><!-- /quiz-section -->
 </section>
 
 <!-- FOOTER -->
@@ -803,4 +1000,377 @@ bars.forEach(b => b.style.width = '0');
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
-      bars.forEach((b, i) => setTimeout(() => b.style
+      bars.forEach((b, i) => setTimeout(() => b.style.width = widths[i], 400 + i * 80));
+      io.disconnect();
+    }
+  });
+}, { threshold: 0.3 });
+io.observe(document.querySelector('.cap-bars') || document.body);
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// QUIZ ENGINE — InsightPilot SPIN
+// ══════════════════════════════════════════════════════════════
+const Q_FASES = [
+  { id:'S', label:'Situación', desc:'El estado real del negocio', color:'#4C8EF0',
+    preguntas:[
+      { id:'s1', texto:'¿En qué etapa se encuentra tu negocio?', sub:'Esto define el enfoque completo del diagnóstico',
+        ops:[
+          {id:'a',l:'Estoy por comenzar o tengo menos de 12 meses',s:'Validando el modelo, primeras ventas o sin facturación aún',p:1,seg:'startup'},
+          {id:'b',l:'Negocio en marcha, facturación menor a $2M por mes',s:'Operación establecida buscando crecer de manera ordenada',p:2,seg:'pyme'},
+          {id:'c',l:'Empresa entre $2M y $15M de facturación mensual',s:'Estructura definida, equipo de trabajo, múltiples líneas',p:3,seg:'mediana'},
+          {id:'d',l:'Empresa con más de $15M de facturación mensual',s:'Operación compleja, decisiones de alto impacto financiero',p:4,seg:'grande'},
+        ]},
+      { id:'s2', texto:'¿Cómo registrás ventas, stock y costos hoy?', sub:'El sistema actual, siendo completamente honesto',
+        ops:[
+          {id:'a',l:'No los registro o de manera informal',s:'De memoria, en papel o en conversaciones de chat',p:4},
+          {id:'b',l:'En planillas de cálculo actualizadas manualmente',s:'Excel o Google Sheets sin automatización',p:3},
+          {id:'c',l:'En un sistema o punto de venta básico',s:'Registro sistemático pero sin análisis avanzado',p:2},
+          {id:'d',l:'En un sistema integrado (ERP, Shopify u otro)',s:'Datos disponibles pero no siempre interpretados',p:1},
+        ]},
+      { id:'s3', texto:'¿Con qué frecuencia analizás los resultados del negocio?', sub:'Ventas, márgenes, rentabilidad por producto o área',
+        ops:[
+          {id:'a',l:'Raramente, cuando hay una crisis',s:'Sin proceso establecido de revisión periódica',p:4},
+          {id:'b',l:'Una vez al mes, cuando llegan los resúmenes',s:'Revisión reactiva, no proactiva',p:3},
+          {id:'c',l:'Semanalmente, aunque de forma informal',s:'Hay intención pero sin metodología ni KPIs definidos',p:2},
+          {id:'d',l:'Con métricas definidas y revisión estructurada',s:'Proceso de monitoreo activo con indicadores establecidos',p:1},
+        ]},
+    ]},
+  { id:'P', label:'Problema', desc:'Identificamos el dolor real', color:'#E88C0C',
+    preguntas:[
+      { id:'p1', texto:'Cuando tenés que tomar una decisión importante, ¿qué hacés?', sub:'Qué comprar, cuánto invertir, a qué precio vender, qué discontinuar',
+        ops:[
+          {id:'a',l:'Decido por intuición o experiencia acumulada',s:'El conocimiento del negocio más que los datos',p:4},
+          {id:'b',l:'Miro algunos números pero sin análisis formal',s:'Información disponible que no proceso sistemáticamente',p:3},
+          {id:'c',l:'Tengo reportes pero me cuesta interpretarlos',s:'La información existe pero no es clara ni accionable',p:2},
+          {id:'d',l:'Analizo datos estructurados antes de decidir',s:'Proceso de decisión respaldado por evidencia',p:1},
+        ]},
+      { id:'p2', texto:'¿Podés nombrar tus 3 productos o servicios más rentables?', sub:'No los que más venden — los que mayor margen neto te dejan',
+        ops:[
+          {id:'a',l:'No, no tengo esa claridad',s:'No distingo entre volumen de venta y rentabilidad real',p:4},
+          {id:'b',l:'Tengo una idea aproximada, sin certeza',s:'Intuición más que datos verificados',p:3},
+          {id:'c',l:'Sí, aunque los datos no están actualizados',s:'Conozco el negocio pero la información es estática',p:2},
+          {id:'d',l:'Sí, y lo reviso regularmente',s:'Claridad activa sobre la composición del margen',p:1},
+        ]},
+      { id:'p3', texto:'¿Sabés cuánto te cuesta adquirir un cliente nuevo?', sub:'Costo real: publicidad, tiempo, descuentos y recursos operativos',
+        ops:[
+          {id:'a',l:'No, nunca lo calculé',s:'No hay visibilidad sobre este indicador clave',p:4},
+          {id:'b',l:'Tengo una estimación sin validar',s:'Cálculo aproximado sin base de datos real',p:3},
+          {id:'c',l:'Lo calculé antes pero no lo actualizo',s:'Dato histórico que puede no reflejar la situación actual',p:2},
+          {id:'d',l:'Sí, es un KPI que monitoreo activamente',s:'Gestión proactiva del costo de adquisición por canal',p:1},
+        ]},
+      { id:'p4', texto:'¿Podés proyectar las ventas del próximo mes con confianza?', sub:'Una estimación fundamentada en datos, no en expectativa',
+        ops:[
+          {id:'a',l:'No, es prácticamente imposible anticiparlo',s:'Alta incertidumbre sobre el desempeño del próximo período',p:4},
+          {id:'b',l:'Tengo una idea general con amplio margen de error',s:'Proyección intuitiva sin base estadística',p:3},
+          {id:'c',l:'Puedo estimar basándome en el historial',s:'Proyección por tendencia sin modelado formal',p:2},
+          {id:'d',l:'Sí, con modelos y rangos definidos',s:'Planificación financiera estructurada con escenarios',p:1},
+        ]},
+    ]},
+  { id:'I', label:'Implicancia', desc:'El costo real de seguir igual', color:'#D94040',
+    preguntas:[
+      { id:'i1', texto:'En el último mes, ¿cuántas decisiones relevantes tomaste sin los datos necesarios?', sub:'Compras de stock, precios, inversión publicitaria, contrataciones',
+        ops:[
+          {id:'a',l:'La mayoría o todas las importantes',s:'La operación funciona principalmente por experiencia',p:4},
+          {id:'b',l:'3 o más decisiones sin información suficiente',s:'Los datos son insuficientes o inaccesibles cuando se necesitan',p:3},
+          {id:'c',l:'1 o 2 decisiones importantes sin datos claros',s:'Situación mixta, algunas respaldadas y otras no',p:2},
+          {id:'d',l:'Ninguna, tengo los datos necesarios',s:'Proceso de decisión respaldado por información disponible',p:1},
+        ]},
+      { id:'i2', texto:'¿Cuánto estimás que perdés por mes por falta de información?', sub:'Publicidad ineficiente, stock inmovilizado, precios mal calibrados, oportunidades perdidas',
+        ops:[
+          {id:'a',l:'No sé — nunca lo calculé',s:'La pérdida existe pero no está cuantificada',p:4},
+          {id:'b',l:'Entre $100.000 y $500.000 mensuales',s:'Pérdida significativa en el contexto del negocio',p:4},
+          {id:'c',l:'Entre $500.000 y $2.000.000 mensuales',s:'Impacto sustancial sobre la rentabilidad operativa',p:4},
+          {id:'d',l:'Más de $2.000.000 mensuales',s:'La falta de información es un problema estructural',p:4},
+        ]},
+      { id:'i3', texto:'¿Tomaste alguna decisión en el último año que salió mal por falta de información?', sub:'Stock excesivo, campaña sin retorno, precio incorrecto, producto discontinuado sin fundamento',
+        ops:[
+          {id:'a',l:'Sí, es un patrón que se repite',s:'Decisiones sin datos que generan pérdidas recurrentes',p:4},
+          {id:'b',l:'Sí, una o dos con impacto importante',s:'Errores aislados pero con consecuencias costosas',p:3},
+          {id:'c',l:'Alguna vez, con impacto menor',s:'Situación controlada pero con margen de mejora',p:2},
+          {id:'d',l:'No, las decisiones han sido sólidas',s:'Proceso de decisión efectivo con los recursos actuales',p:1},
+        ]},
+    ]},
+  { id:'N', label:'Necesidad', desc:'El valor de la solución', color:'#0DB87A',
+    preguntas:[
+      { id:'n1', texto:'Si pudieras resolver un solo problema de información esta semana, ¿cuál elegirías?', sub:'El de mayor impacto inmediato sobre tu operación y rentabilidad',
+        ops:[
+          {id:'a',l:'Saber exactamente qué margen deja cada producto',s:'Claridad sobre la composición real de la rentabilidad',p:3},
+          {id:'b',l:'Saber si mi inversión publicitaria genera retorno',s:'ROAS real, costo de adquisición y eficiencia por canal',p:3},
+          {id:'c',l:'Identificar el capital inmovilizado en stock',s:'Dinero atrapado que no genera retorno y deteriora el flujo',p:3},
+          {id:'d',l:'Tener una proyección confiable a 60 días',s:'Base para planificación financiera y decisiones de escala',p:3},
+        ]},
+      { id:'n2', texto:'¿Cuánto valdría tener un análisis semanal de tu negocio con acciones concretas?', sub:'Alguien que interpreta los datos, detecta problemas antes de que sean crisis y dice qué hacer',
+        ops:[
+          {id:'a',l:'Sería transformador — cambiaría cómo opero',s:'Impacto estructural en la toma de decisiones y resultados',p:4},
+          {id:'b',l:'Alto valor en momentos de decisión compleja',s:'Recurso crítico cuando el contexto exige precisión',p:3},
+          {id:'c',l:'Útil pero no es prioridad inmediata',s:'Valor reconocido pero el timing no está alineado aún',p:2},
+          {id:'d',l:'No lo necesito, mi operación está cubierta',s:'El sistema actual satisface las necesidades actuales',p:1},
+        ]},
+    ]},
+]
+
+const Q_RESULTADOS = {
+  inicial:{tier:'Diagnóstico Inicial',precio:'$300 USD',color:'#4C8EF0',perfil:'Negocio en etapa de estructuración',desc:'El primer paso es establecer una línea de base. Sin datos claros, cada decisión es una apuesta. El Diagnóstico Inicial entrega esa claridad en 7 días.',insight:'Los negocios que no miden no pueden crecer de manera predecible. La diferencia entre intuición e información es la diferencia entre sobrevivir y escalar.',incluye:['Plantilla de datos estructurada','Business Health Score inicial','3 acciones prioritarias con impacto estimado','Reunión de 30 minutos para revisar los resultados']},
+  pro:{tier:'Diagnóstico Pro',precio:'$800 USD',color:'#2D42CC',perfil:'Negocio con datos disponibles sin analizar',desc:'Tenés la información pero no el análisis. InsightPilot procesa tus archivos con IA especializada y entrega un diagnóstico completo con alertas, proyecciones y plan de acción en menos de 72 horas.',insight:'Tener datos sin análisis es como tener un balance sin poder leerlo. El diagnóstico convierte números en decisiones claras y priorizadas.',incluye:['Análisis completo de ventas e inventario','Business Health Score por área del negocio','Alertas clasificadas por urgencia e impacto','Proyección de ingresos a 30, 60 y 90 días','Análisis de eficiencia publicitaria y ROAS','Plan de acción ordenado por prioridad','Reporte ejecutivo en PDF','Reunión estratégica de 60 minutos']},
+  copiloto:{tier:'Copiloto Mensual',precio:'$1.500 USD/mes',color:'#0DB87A',perfil:'Empresa que requiere monitoreo continuo',desc:'Tu negocio tiene la escala para justificar inteligencia permanente. El Copiloto es un analista dedicado dentro de tu operación: monitoreo en tiempo real, alertas semanales y acompañamiento estratégico.',insight:'A partir de cierta escala, el costo de no tener información en tiempo real supera ampliamente el costo del sistema. Cada semana sin datos es una semana tomando decisiones a ciegas.',incluye:['Dashboard en tiempo real con KPIs críticos','Alertas automáticas ante variaciones relevantes','Reporte ejecutivo semanal listo para presentar','Simulador de escenarios para decisiones de impacto','Análisis de campañas y redistribución de presupuesto','Integración con sistemas existentes','Reunión estratégica mensual','Soporte prioritario ante situaciones críticas']},
+}
+
+let qFi=0, qPi=0, qResp={}
+const qTotalPregs = Q_FASES.reduce((s,f)=>s+f.preguntas.length,0)
+let Q_LEADS=[]
+
+const SUPA_URL='https://gqhnbiwibwzwpxdxshbk.supabase.co'
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxaG5iaXdpYnd6d3B4ZHhzaGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwODk0OTIsImV4cCI6MjA4ODY2NTQ5Mn0.v3kQ-7yPxGLWk3-yvRT6pnDm-4X55Ynk7Iqen38hDvg'
+
+async function supaInsert(lead){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/leads`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({nombre:lead.nombre,empresa:lead.empresa,tel:lead.tel,tier:lead.tier,pct:lead.pct,seg:lead.seg,resp:lead.resp,fecha:lead.fecha})
+    })
+  }catch(e){console.warn('Supabase error:',e)}
+}
+
+async function supaGetLeads(){
+  try{
+    const r=await fetch(`${SUPA_URL}/rest/v1/leads?order=fecha.desc`,{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    })
+    return await r.json()
+  }catch(e){console.warn('Supabase error:',e);return Q_LEADS}
+}
+
+async function supaDeleteAll(){
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/leads?id=gte.0`,{
+      method:'DELETE',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    })
+  }catch(e){console.warn('Supabase error:',e)}
+}
+
+function qShow(id){
+  document.querySelectorAll('.qscreen').forEach(s=>s.classList.remove('active'))
+  const el=document.getElementById('qscreen-'+id)
+  if(el)el.classList.add('active')
+}
+
+function qIniciar(){
+  qFi=0;qPi=0;qResp={}
+  document.getElementById('quiz-section-header').style.display='none'
+  document.getElementById('quiz-pbar').style.display='block'
+  document.getElementById('quiz-subnav').style.display='flex'
+  qRenderDots()
+  qRenderPregunta()
+  qShow('pregunta')
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'})
+}
+
+function qRenderDots(){
+  const c=document.getElementById('quiz-fase-dots')
+  c.innerHTML=''
+  Q_FASES.forEach((f,i)=>{
+    const d=document.createElement('div')
+    d.className='qfd'+(i<qFi?' done':i===qFi?' active':'')
+    if(i<qFi)d.style.background=Q_FASES[i].color
+    else if(i===qFi){d.style.background='#fff';d.style.width='20px'}
+    c.appendChild(d)
+    if(i<Q_FASES.length-1){const sep=document.createElement('div');sep.style.cssText='width:6px;height:1px;background:rgba(255,255,255,.08)';c.appendChild(sep)}
+  })
+}
+
+function qRenderPregunta(){
+  const fase=Q_FASES[qFi], preg=fase.preguntas[qPi]
+  const respondidas=Object.keys(qResp).length
+  document.getElementById('quiz-pfill').style.width=Math.round((respondidas/qTotalPregs)*100)+'%'
+  document.getElementById('quiz-nav-meta').textContent=`${qFi+1}/4  ·  ${qPi+1}/${fase.preguntas.length}`
+
+  const chip=document.getElementById('q-chip')
+  chip.textContent=fase.id+' — '+fase.label
+  chip.style.background=fase.color+'18'
+  chip.style.border='1px solid '+fase.color+'35'
+  chip.style.color=fase.color
+
+  document.getElementById('q-fase-desc').textContent=fase.desc
+  document.getElementById('q-counter').textContent=(qPi+1)+' de '+fase.preguntas.length
+  document.getElementById('q-texto').textContent=preg.texto
+  document.getElementById('q-sub').textContent=preg.sub
+
+  const bb=document.getElementById('q-btn-back')
+  bb.style.display=(qFi>0||qPi>0)?'block':'none'
+
+  const cont=document.getElementById('q-opciones')
+  cont.innerHTML=''
+  preg.ops.forEach(op=>{
+    const div=document.createElement('div')
+    div.className='q-op'
+    div.innerHTML=`<div style="flex:1"><div class="q-op-label">${op.l}</div><div class="q-op-sub">${op.s}</div></div><svg class="q-op-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`
+    div.addEventListener('mouseenter',()=>{if(!div.classList.contains('sel')){div.style.borderColor=fase.color+'55'}})
+    div.addEventListener('mouseleave',()=>{if(!div.classList.contains('sel'))div.style.borderColor='rgba(255,255,255,.055)'})
+    div.onclick=()=>qElegir(op.id,fase.color,div,preg.id)
+    cont.appendChild(div)
+  })
+}
+
+function qElegir(opId,color,el,pregId){
+  el.style.background=color+'14'
+  el.style.borderColor=color
+  el.style.transform='translateX(6px)'
+  el.querySelector('svg').style.stroke=color
+  setTimeout(()=>{
+    qResp[pregId]=opId
+    const npi=qPi+1
+    if(npi<Q_FASES[qFi].preguntas.length){qPi=npi;qRenderPregunta()}
+    else{
+      const nfi=qFi+1
+      if(nfi<Q_FASES.length){qFi=nfi;qPi=0;qRenderDots();qRenderPregunta()}
+      else{
+        document.getElementById('quiz-pfill').style.width='100%'
+        document.getElementById('quiz-nav-meta').textContent=''
+        qShow('contacto')
+      }
+    }
+  },280)
+}
+
+function qVolver(){
+  if(qPi>0){qPi--;qRenderPregunta()}
+  else if(qFi>0){qFi--;qPi=Q_FASES[qFi].preguntas.length-1;qRenderDots();qRenderPregunta()}
+}
+
+function qCheckContact(){
+  const ok=['q-inp-nombre','q-inp-empresa','q-inp-tel'].every(id=>document.getElementById(id).value.trim())
+  const b=document.getElementById('q-btn-ver')
+  b.classList.toggle('ready',ok)
+}
+
+function qCalcTier(){
+  let pts=0,max=0
+  for(const f of Q_FASES)for(const p of f.preguntas){const o=p.ops.find(o=>o.id===qResp[p.id]);if(o)pts+=o.p;max+=4}
+  const pct=pts/max
+  const seg=(Q_FASES[0].preguntas[0].ops.find(o=>o.id===qResp['s1'])||{}).seg||'pyme'
+  let tier
+  if(seg==='grande'||seg==='mediana')tier=pct>=0.4?'copiloto':'pro'
+  else if(seg==='startup')tier=pct>=0.55?'pro':'inicial'
+  else tier=pct>=0.65?'copiloto':pct>=0.35?'pro':'inicial'
+  return{tier,pct:Math.round(pct*100),seg}
+}
+
+function qConfirmar(){
+  const nombre=document.getElementById('q-inp-nombre').value.trim()
+  const empresa=document.getElementById('q-inp-empresa').value.trim()
+  const tel=document.getElementById('q-inp-tel').value.trim()
+  if(!nombre||!empresa||!tel)return
+  const res=qCalcTier()
+  const lead={id:Date.now(),nombre,empresa,tel,resp:{...qResp},tier:res.tier,pct:res.pct,seg:res.seg,fecha:new Date().toISOString()}
+  Q_LEADS.push(lead)
+  supaInsert(lead)
+  document.getElementById('q-conf-name').textContent=nombre+' · '+empresa
+  document.getElementById('q-conf-meta').textContent='Número: '+tel+' · Resultado: '+Q_RESULTADOS[res.tier].tier
+  qShow('confirm')
+  document.getElementById('quiz-pbar').style.display='none'
+  document.getElementById('quiz-subnav').style.display='none'
+}
+
+function qCheckAdminAccess(){
+  const clave=prompt('Clave de acceso:')
+  if(clave==='levx2026')qAbrirAdmin()
+}
+
+function qAbrirAdmin(){
+  document.querySelectorAll('.qscreen').forEach(s=>s.style.display='none')
+  document.getElementById('quiz-section-header').style.display='none'
+  document.getElementById('quiz-pbar').style.display='none'
+  document.getElementById('quiz-subnav').style.display='none'
+  const p=document.getElementById('q-admin-panel')
+  p.style.display='block'
+  p.classList.add('active')
+  qRenderAdmin()
+}
+
+function qLimpiarLeads(){if(confirm('¿Eliminar todos los registros?')){supaDeleteAll();Q_LEADS=[];qRenderAdmin()}}
+
+async function qRenderAdmin(){
+  const list=document.getElementById('q-leads-list')
+  list.innerHTML='<div class="q-lead-empty" style="color:#4C8EF0">Cargando consultas...</div>'
+  const leads=await supaGetLeads()
+  Q_LEADS=leads
+  if(leads.length===0){list.innerHTML='<div class="q-lead-empty">No hay consultas registradas todavía.</div>';return}
+  list.innerHTML=leads.map(l=>{
+    const R=Q_RESULTADOS[l.tier]
+    const fecha=new Date(l.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+    return `<div class="q-lead-card">
+      <div>
+        <div class="q-lead-name">${l.nombre}</div>
+        <div class="q-lead-empresa">${l.empresa} · ${l.tel}</div>
+        <div class="q-lead-meta">
+          <span class="q-lead-tier-badge" style="background:${R.color}15;color:${R.color};border:1px solid ${R.color}30">${R.tier}</span>
+          <span class="q-lead-tier-badge" style="background:rgba(255,255,255,.04);color:#7A90B4;border:1px solid rgba(255,255,255,.06)">Urgencia ${l.pct}%</span>
+          <span class="q-lead-fecha">${fecha}</span>
+        </div>
+      </div>
+      <div class="q-lead-actions">
+        <button class="q-btn-sm q-btn-pdf" onclick='qGenerarPDF(${JSON.stringify(l)})'>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF
+        </button>
+        <button class="q-btn-sm q-btn-wa2" onclick="qAbrirWA('${l.tel}','${l.nombre}','${l.empresa}','${l.tier}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Enviar
+        </button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function qAbrirWA(tel,nombre,empresa,tier){
+  const R=Q_RESULTADOS[tier]
+  const num=tel.replace(/\D/g,'')
+  const msg=encodeURIComponent(`Hola ${nombre}, soy de Levx Intelligence.\n\nAcabo de revisar tu diagnóstico de InsightPilot para *${empresa}*.\n\nTe adjunto el reporte completo con los resultados. Quedamos a disposición para cualquier consulta.\n\n— Equipo Levx Intelligence`)
+  window.open(`https://wa.me/${num}?text=${msg}`,'_blank')
+}
+
+function qGenerarPDF(lead){
+  const R=Q_RESULTADOS[lead.tier]
+  const fecha=new Date(lead.fecha||Date.now()).toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})
+  const seg=lead.seg||'pyme', pct=lead.pct||50
+  const NIVEL={inicial:'Fundacional',pro:'Growth',copiloto:'Escala'}[lead.tier]
+  const MADUREZ={inicial:'Inicial',pro:'Intermedia',copiloto:'Avanzada'}[lead.tier]
+  const PRIOR=pct>=70?'Crítica':pct>=45?'Alta':'Media'
+  const NIVEL_DESC={inicial:`${lead.empresa} está en una etapa donde ordenar la información es el primer paso real para crecer. Sin datos claros, cada decisión depende del olfato — y eso tiene un costo concreto que se acumula mes a mes.`,pro:`${lead.empresa} ya tiene información útil, pero todavía necesita una lectura más clara para convertir datos en decisiones comerciales más rentables.`,copiloto:`${lead.empresa} opera a una escala donde la velocidad de decisión define la ventaja competitiva. El monitoreo continuo no es un lujo — es lo que separa crecer de escalar.`}[lead.tier]
+  const hallazgos=[]
+  const r=lead.resp
+  if(r.s2==='a'||r.s2==='b')hallazgos.push('Los datos del negocio están dispersos entre planillas, conversaciones y registros informales — sin una fuente única de verdad.')
+  if(r.p1==='a'||r.p1==='b')hallazgos.push('Las decisiones importantes se toman por intuición o experiencia, sin respaldo de información estructurada.')
+  if(r.p2==='a'||r.p2==='b')hallazgos.push('No hay claridad sobre qué productos o servicios generan mayor rentabilidad real, más allá del volumen de ventas.')
+  if(r.p3==='a'||r.p3==='b')hallazgos.push('El costo de adquirir un cliente nuevo no está calculado, lo que impide evaluar si la inversión en publicidad genera retorno.')
+  if(r.i1==='a'||r.i1==='b')hallazgos.push('En el último mes se tomaron múltiples decisiones relevantes sin contar con la información necesaria para respaldarlas.')
+  if(r.i3==='a'||r.i3==='b')hallazgos.push('Hubo decisiones en el último año que salieron mal por falta de información — un patrón que tiende a repetirse sin un sistema de análisis.')
+  if(hallazgos.length===0)hallazgos.push('El negocio tiene una base de información razonable con oportunidades concretas de optimización y mayor velocidad de decisión.')
+  const hall3=hallazgos.slice(0,3)
+  const ordenDatos=r.s2==='d'?72:r.s2==='c'?55:r.s2==='b'?38:22
+  const visibilidad=r.p2==='d'?68:r.p2==='c'?50:r.p2==='b'?35:20
+  const capacidad=r.p1==='d'?75:r.p1==='c'?55:r.p1==='b'?40:25
+  const potencial=Math.min(95,100-Math.round((ordenDatos+visibilidad+capacidad)/3)+40)
+  const IMPACTO={startup:'USD 300 – 1.200 / mes',pyme:'USD 800 – 3.500 / mes',mediana:'USD 2.000 – 8.000 / mes',grande:'USD 5.000 – 20.000 / mes'}[seg]
+  const FUGA={startup:'8% – 14%',pyme:'12% – 20%',mediana:'15% – 25%',grande:'10% – 18%'}[seg]
+  const LOGO=`<svg width="22" height="25" viewBox="0 0 46 50" fill="none"><rect x="0" y="10" width="6" height="40" fill="#4C8EF0"/><rect x="0" y="44" width="22" height="6" fill="#4C8EF0"/><polygon points="8,0 36,0 46,10 8,10" fill="#4C8EF0"/><rect x="14" y="14" width="5" height="20" fill="white" opacity=".85"/><rect x="22" y="18" width="5" height="16" fill="white" opacity=".65"/><rect x="30" y="22" width="5" height="12" fill="white" opacity=".45"/></svg>`
+  const CSS=`@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');*{box-sizing:border-box;margin:0;padding:0}body{background:#060E1A;color:#E8EEF8;font-family:'DM Sans',Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.page{width:210mm;min-height:297mm;padding:14mm 14mm 12mm;position:relative;background:#060E1A;page-break-after:always;overflow:hidden}.page:last-child{page-break-after:auto}.page-bg{position:absolute;top:-60px;right:-80px;width:340px;height:340px;background:radial-gradient(circle,rgba(45,66,204,.18),transparent 70%);border-radius:50%;pointer-events:none}.page-bg2{position:absolute;bottom:-40px;left:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(76,142,240,.1),transparent 70%);border-radius:50%;pointer-events:none}.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10mm}.nav-brand{display:flex;align-items:center;gap:8px}.nav-name{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:-.01em}.nav-sub{font-size:9px;color:#4A607E;letter-spacing:.04em}.nav-right{font-family:'DM Mono',monospace;font-size:9px;color:#3A506E;letter-spacing:.04em;text-align:right}.tag{display:inline-block;font-family:'Sora',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:99px;border:1px solid rgba(76,142,240,.3);color:#4C8EF0;background:rgba(76,142,240,.08)}h1{font-family:'Sora',sans-serif;font-size:36px;font-weight:900;color:#fff;letter-spacing:-.02em;line-height:1.1;margin:6px 0 10px}.lead-p{font-size:13px;color:#7A90B4;line-height:1.7;max-width:340px}.summary-box{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 18px;min-width:190px}.sum-label{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#4A607E;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}.sum-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:10px}.sum-val:last-child{margin-bottom:0}.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10mm}.col-card{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px}.col-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#4A607E;margin-bottom:6px}.col-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:#4C8EF0;margin-bottom:6px}.col-body{font-size:11px;color:#7A90B4;line-height:1.6}.insight-box{background:#091425;border:1px solid rgba(76,142,240,.2);border-radius:10px;padding:14px 18px;margin-top:10mm}.insight-label{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#4C8EF0;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}.insight-text{font-size:12px;color:#E8EEF8;line-height:1.65}.page-footer{position:absolute;bottom:10mm;left:14mm;right:14mm;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.06);padding-top:8px}.footer-brand{font-size:9px;color:#3A506E}.footer-page{font-family:'DM Mono',monospace;font-size:9px;color:#3A506E}.section-title{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.01em;margin-bottom:2mm;padding-bottom:3mm;border-bottom:1px solid rgba(255,255,255,.07)}.hall-list{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px 18px;margin-top:6mm}.hall-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;color:#C4D0E4;line-height:1.6}.hall-item:last-child{border-bottom:none}.hall-dot{width:7px;height:7px;border-radius:50%;background:#4C8EF0;flex-shrink:0;margin-top:5px}.side-cards{display:flex;flex-direction:column;gap:10px}.side-card{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px 14px}.side-card-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:4px}.side-card-body{font-size:11px;color:#7A90B4;line-height:1.5}.bars-box{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px 18px;margin-top:6mm}.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}.bar-row:last-child{margin-bottom:0}.bar-label{font-size:11px;color:#7A90B4;width:130px;flex-shrink:0}.bar-track{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}.bar-fill-pdf{height:100%;border-radius:99px;background:linear-gradient(90deg,#2D42CC,#4C8EF0)}.bar-val{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#fff;width:32px;text-align:right;flex-shrink:0}.metric-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6mm}.metric-card{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px}.metric-micro{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#4A607E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}.metric-big{font-family:'Sora',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:4px}.metric-sub{font-size:10px;color:#7A90B4;line-height:1.4}.impact-box{background:linear-gradient(135deg,#091425,#0C1A30);border:1px solid rgba(76,142,240,.2);border-radius:12px;padding:18px 22px;margin:6mm 0}.impact-label{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#E8EEF8;margin-bottom:4px}.impact-big{font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#4C8EF0;letter-spacing:-.02em;margin-bottom:6px}.impact-note{font-size:10px;color:#4A607E;line-height:1.5}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.list-box{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px}.list-box-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:10px}.list-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#7A90B4;line-height:1.5;margin-bottom:7px}.list-item:last-child{margin-bottom:0}.list-dot{width:6px;height:6px;border-radius:50%;background:#4C8EF0;flex-shrink:0;margin-top:4px}.list-dot-ok{background:#0DB87A}.cta-box{background:linear-gradient(135deg,#091425,#0C1A30);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px;margin-top:6mm}.cta-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.01em;margin-bottom:8px}.cta-body{font-size:12px;color:#7A90B4;line-height:1.7}.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6mm}.contact-card{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px}.contact-micro{font-family:'Sora',sans-serif;font-size:8px;font-weight:700;color:#4A607E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}.contact-big{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#4C8EF0;margin-bottom:4px}.contact-sub{font-size:10px;color:#7A90B4}.steps-box{background:#091425;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px 18px;margin-top:6mm}.steps-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:12px}.step-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:11px;color:#7A90B4;line-height:1.5}.step-item:last-child{margin-bottom:0}.step-num{width:20px;height:20px;border-radius:50%;background:rgba(76,142,240,.15);border:1px solid rgba(76,142,240,.3);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:#4C8EF0;flex-shrink:0}@media print{@page{margin:0;size:A4}.page{margin:0;padding:14mm 14mm 12mm}}`
+  const NAV=(p)=>`<div class="page-bg"></div><div class="page-bg2"></div><div class="nav"><div class="nav-brand">${LOGO}<div><div class="nav-name">InsightPilot</div><div class="nav-sub">by Levx Intelligence</div></div></div><div class="nav-right">InsightPilot · Diagnóstico ${lead.empresa}<br>${fecha}</div></div>`
+  const FOOTER=(p)=>`<div class="page-footer"><div class="footer-brand">Levx Intelligence · hola@levx.com.ar · +54 9 385 314 2987</div><div class="footer-page">Página ${p}</div></div>`
+  const html=`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Diagnóstico InsightPilot — ${lead.empresa}</title><style>${CSS}</style></head><body>
+  <div class="page">${NAV(1)}<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px"><div style="flex:1"><div class="tag">Diagnóstico estratégico</div><h1>Resultado del diagnóstico<br>Nivel ${NIVEL}</h1><p class="lead-p">${NIVEL_DESC}</p></div><div class="summary-box"><div class="sum-label">Nivel detectado</div><div class="sum-val">${NIVEL}</div><div class="sum-label">Madurez analítica</div><div class="sum-val">${MADUREZ}</div><div class="sum-label">Prioridad</div><div class="sum-val">${PRIOR}</div><div class="sum-label">Canal sugerido</div><div class="sum-val" style="margin-bottom:0;font-size:12px">WhatsApp + videollamada</div></div></div><div class="three-col"><div class="col-card"><div class="col-num">01</div><div class="col-title">Lo que ya tenés</div><div class="col-body">${lead.tier==='copiloto'?'Datos estructurados, operación activa y volumen para justificar análisis continuo.':lead.tier==='pro'?'Hay datos, movimientos medibles e interés comercial concreto.':'Hay experiencia, conocimiento del negocio y ganas de ordenar la información.'}</div></div><div class="col-card"><div class="col-num">02</div><div class="col-title">Lo que falta</div><div class="col-body">${lead.tier==='copiloto'?'Cruzar todos los indicadores en una sola vista ejecutiva para decidir más rápido.':lead.tier==='pro'?'Cruzar marketing, ventas y operación para detectar fugas y oportunidades reales.':'Una base de datos ordenada que convierta la experiencia en decisiones predecibles.'}</div></div><div class="col-card"><div class="col-num">03</div><div class="col-title">Lo recomendable</div><div class="col-body">${lead.tier==='copiloto'?'Implementar monitoreo continuo con alertas semanales y reunión estratégica mensual.':lead.tier==='pro'?'Ordenar el sistema de análisis y tomar decisiones con una vista ejecutiva clara.':'Establecer una línea de base con los números reales del negocio esta semana.'}</div></div></div><div class="insight-box"><div class="insight-label">Insight clave</div><div class="insight-text">${R.insight}</div></div>${FOOTER(1)}</div>
+  <div class="page">${NAV(2)}<div class="section-title">Hallazgos del diagnóstico</div><div style="display:grid;grid-template-columns:1fr 180px;gap:14px;margin-top:6mm"><div><div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:4mm">Puntos detectados</div><div class="hall-list">${hall3.map(h=>`<div class="hall-item"><div class="hall-dot"></div><div>${h}</div></div>`).join('')}</div></div><div class="side-cards"><div class="side-card"><div class="side-card-title">Oportunidad inmediata</div><div class="side-card-body">${lead.tier==='copiloto'?'Unificar todos los indicadores en un tablero ejecutivo con lectura semanal automática.':lead.tier==='pro'?'Unificar indicadores de marketing, ventas y operación en un solo tablero con lectura semanal.':'Registrar y ordenar los datos clave del negocio para tener la primera foto real del estado actual.'}</div></div><div class="side-card"><div class="side-card-title">Riesgo actual</div><div class="side-card-body">Seguir tomando decisiones por intuición o reportes aislados puede ocultar fugas y ralentizar el crecimiento.</div></div><div class="side-card"><div class="side-card-title">Valor del siguiente paso</div><div class="side-card-body">Una videollamada de 15 minutos permite ver exactamente dónde están las alertas y qué decisiones conviene priorizar.</div></div></div></div><div class="bars-box"><div style="font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:10px">Lectura ejecutiva del estado actual</div>${[{l:'Orden de datos',v:ordenDatos},{l:'Visibilidad comercial',v:visibilidad},{l:'Capacidad de decisión',v:capacidad},{l:'Potencial de mejora',v:potencial}].map(b=>`<div class="bar-row"><div class="bar-label">${b.l}</div><div class="bar-track"><div class="bar-fill-pdf" style="width:${b.v}%"></div></div><div class="bar-val">${b.v}%</div></div>`).join('')}</div>${FOOTER(2)}</div>
+  <div class="page">${NAV(3)}<div class="section-title">Impacto estimado y oportunidades</div><div class="metric-row"><div class="metric-card"><div class="metric-micro">Fuga potencial</div><div class="metric-big">${FUGA}</div><div class="metric-sub">en conversión o seguimiento de oportunidades</div></div><div class="metric-card"><div class="metric-micro">Ventana de mejora</div><div class="metric-big">30 días</div><div class="metric-sub">para ordenar la lectura del negocio y priorizar decisiones</div></div><div class="metric-card"><div class="metric-micro">Retorno esperado</div><div class="metric-big">Alto</div><div class="metric-sub">cuando se cruza información de marketing, ventas y operación</div></div></div><div class="impact-box"><div class="impact-label">Impacto estimado del problema</div><div class="impact-big">${IMPACTO}</div><div class="impact-note">Estimación basada en el perfil de ${lead.empresa} y las respuestas del diagnóstico. En la implementación real este rango se ajusta según el ticket promedio y los canales activos.</div></div><div class="two-col"><div class="list-box"><div class="list-box-title">Dónde suele estar la pérdida</div>${['Seguimiento irregular de clientes potenciales','Campañas sin lectura unificada de retorno','Reportes tardíos o desconectados entre áreas','Decisiones basadas en intuición sin datos de respaldo'].map(i=>`<div class="list-item"><div class="list-dot"></div>${i}</div>`).join('')}</div><div class="list-box"><div class="list-box-title">Qué resuelve InsightPilot</div>${['Vista ejecutiva clara y actualizada','Alertas comerciales tempranas por área','Cruce entre marketing, ventas y operación','Recomendación accionable y simple cada semana'].map(i=>`<div class="list-item"><div class="list-dot list-dot-ok"></div>${i}</div>`).join('')}</div></div>${FOOTER(3)}</div>
+  <div class="page">${NAV(4)}<div class="section-title">Siguiente paso recomendado</div><div class="cta-box"><div class="cta-title">Recibí tu revisión estratégica</div><div class="cta-body">Con una videollamada breve podés ver cómo se traduciría este diagnóstico en un tablero real para ${lead.empresa}, qué alertas mostraría y qué decisiones ayudaría a tomar esta semana.</div></div><div class="contact-row"><div class="contact-card"><div class="contact-micro">Contacto directo</div><div class="contact-big">WhatsApp</div><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#4C8EF0;margin-top:8px">+54 9 385 314 2987</div><div class="contact-sub" style="margin-top:4px">Respondemos el mismo día</div></div><div class="contact-card"><div class="contact-micro">Sin compromiso</div><div class="contact-big">Videollamada</div><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#4C8EF0;margin-top:8px">15 minutos</div><div class="contact-sub" style="margin-top:4px">Adaptada al nivel ${NIVEL} detectado</div></div></div><div class="steps-box"><div class="steps-title">Qué sigue después del diagnóstico</div>${[`${lead.nombre} recibe este reporte por WhatsApp con el resultado completo del diagnóstico.`,'Se agenda una videollamada de 15 minutos para revisar los hallazgos en detalle.',`Se muestra una demo corta adaptada al nivel ${NIVEL} detectado en ${lead.empresa}.`,'Se propone una solución clara: ordenar, optimizar o escalar — con precio y plazo definidos.'].map((s,i)=>`<div class="step-item"><div class="step-num">${i+1}</div><div>${s}</div></div>`).join('')}</div><div style="margin-top:8mm;text-align:center"><div style="display:inline-flex;align-items:center;gap:10px">${LOGO}<div><div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff">InsightPilot</div><div style="font-size:10px;color:#4A607E">by Levx Intelligence</div></div></div></div>${FOOTER(4)}</div>
+  </body></html>`
+  const win=window.open('','_blank','width=900,height=1000')
+  win.document.write(html)
+  win.document.close()
+  win.focus()
+  setTimeout(()=>win.print(),800)
+}
+</script>
+</body>
+</html>
