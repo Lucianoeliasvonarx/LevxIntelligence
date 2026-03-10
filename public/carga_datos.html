@@ -77,7 +77,14 @@ header{background:var(--ink-1);border-bottom:1px solid var(--bs);padding:0 28px;
 .btn-save:hover{background:#0aa368}
 .btn-save.done{background:var(--sky)}
 
-/* NOTIF */
+/* MODAL NUEVO CLIENTE */
+#modal-nc{position:fixed;inset:0;z-index:200;background:rgba(6,14,26,.88);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#modal-nc.open{display:flex}
+.modal-box{width:100%;max-width:440px;background:var(--ink-1);border:1px solid rgba(76,142,240,.2);border-radius:18px;padding:28px 32px}
+.modal-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--dim);margin-bottom:22px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;line-height:1}
+
 .notif{position:fixed;top:12px;right:16px;z-index:9999;background:var(--ink-1);border:1px solid var(--bs);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.4);animation:ni .3s ease}
 @keyframes ni{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateY(0)}}
 
@@ -108,6 +115,27 @@ header{background:var(--ink-1);border-bottom:1px solid var(--bs);padding:0 28px;
     <input class="lb-inp" id="pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="lb-btn" onclick="doLogin()">Ingresar</button>
     <div class="lb-err" id="lerr">Empresa o contraseña incorrecta.</div>
+    <button onclick="abrirModalNuevo()" style="width:100%;margin-top:12px;padding:11px;background:transparent;color:var(--sky);border:1px solid rgba(76,142,240,.25);border-radius:9px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(76,142,240,.08)'" onmouseout="this.style.background='transparent'">
+      + Nuevo cliente
+    </button>
+  </div>
+</div>
+
+<!-- MODAL NUEVO CLIENTE -->
+<div id="modal-nc">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="cerrarModalNuevo()">×</button>
+    <div class="modal-title">Nuevo cliente</div>
+    <div class="modal-sub">El cliente podrá ingresar con esta clave y cargar sus datos del mes.</div>
+    <label class="lb-lbl">Nombre de la empresa</label>
+    <input class="lb-inp" id="nc-nombre" type="text" placeholder="Distribuidora García SRL" oninput="ncValidar()">
+    <label class="lb-lbl">Código de acceso (ID)</label>
+    <input class="lb-inp" id="nc-id" type="text" placeholder="Ej: DG01 (sin espacios)" oninput="ncValidar()">
+    <div id="nc-id-err" style="font-size:11px;color:var(--danger);margin-top:-10px;margin-bottom:10px;display:none">Ese código ya existe. Usá otro.</div>
+    <label class="lb-lbl">Contraseña para este cliente</label>
+    <input class="lb-inp" id="nc-pass" type="text" placeholder="Ej: garcia2026" oninput="ncValidar()">
+    <button class="lb-btn" id="nc-btn" onclick="guardarNuevoCliente()" style="opacity:.5;pointer-events:none">Guardar cliente</button>
+    <div id="nc-ok" style="display:none;font-size:12px;color:var(--ok);text-align:center;margin-top:10px">✓ Cliente creado correctamente</div>
   </div>
 </div>
 
@@ -411,14 +439,83 @@ header{background:var(--ink-1);border-bottom:1px solid var(--bs);padding:0 28px;
 
 <script>
 const CLAVE='cliente123'
-const EMPRESAS={DN:'Distribuidora Norte',FE:'Ferretería El Centro',RI:'Ropa & Estilo SA'}
+const EMPRESAS_BASE={DN:'Distribuidora Norte',FE:'Ferretería El Centro',RI:'Ropa & Estilo SA'}
+const CLAVES_BASE={DN:'cliente123',FE:'cliente123',RI:'cliente123'}
 let empresa=null
+
+// Cargar clientes guardados dinámicamente
+function getEmpresas(){
+  let custom={}
+  try{custom=JSON.parse(localStorage.getItem('insightpilot_clientes')||'{}')}catch(e){}
+  return Object.assign({},EMPRESAS_BASE,custom)
+}
+function getClaves(){
+  let custom={}
+  try{custom=JSON.parse(localStorage.getItem('insightpilot_claves')||'{}')}catch(e){}
+  return Object.assign({},CLAVES_BASE,custom)
+}
+
+function cargarSelectEmpresas(){
+  const sel=document.getElementById('sel')
+  const empresas=getEmpresas()
+  sel.innerHTML='<option value="">— Seleccioná tu negocio —</option>'
+  Object.entries(empresas).forEach(([k,v])=>{
+    const o=document.createElement('option');o.value=k;o.textContent=v;sel.appendChild(o)
+  })
+}
+cargarSelectEmpresas()
 
 function doLogin(){
   const k=document.getElementById('sel').value
   const p=document.getElementById('pass').value
-  if(k&&p===CLAVE){empresa=k;iniciar()}
+  const claves=getClaves()
+  if(k&&p===claves[k]){empresa=k;iniciar()}
   else{document.getElementById('lerr').style.display='block'}
+}
+
+// ── MODAL NUEVO CLIENTE ──
+function abrirModalNuevo(){
+  document.getElementById('modal-nc').classList.add('open')
+  document.getElementById('nc-nombre').value=''
+  document.getElementById('nc-id').value=''
+  document.getElementById('nc-pass').value=''
+  document.getElementById('nc-ok').style.display='none'
+  document.getElementById('nc-id-err').style.display='none'
+  ncValidar()
+}
+function cerrarModalNuevo(){
+  document.getElementById('modal-nc').classList.remove('open')
+}
+function ncValidar(){
+  const n=document.getElementById('nc-nombre').value.trim()
+  const id=document.getElementById('nc-id').value.trim().toUpperCase().replace(/\s/g,'')
+  const p=document.getElementById('nc-pass').value.trim()
+  const empresas=getEmpresas()
+  const existe=id&&empresas[id]
+  document.getElementById('nc-id-err').style.display=existe?'block':'none'
+  const ok=n&&id&&p&&!existe
+  const btn=document.getElementById('nc-btn')
+  btn.style.opacity=ok?'1':'0.5'
+  btn.style.pointerEvents=ok?'auto':'none'
+}
+function guardarNuevoCliente(){
+  const nombre=document.getElementById('nc-nombre').value.trim()
+  const id=document.getElementById('nc-id').value.trim().toUpperCase().replace(/\s/g,'')
+  const pass=document.getElementById('nc-pass').value.trim()
+  // Guardar empresa
+  let empresas={}
+  try{empresas=JSON.parse(localStorage.getItem('insightpilot_clientes')||'{}')}catch(e){}
+  empresas[id]=nombre
+  localStorage.setItem('insightpilot_clientes',JSON.stringify(empresas))
+  // Guardar clave
+  let claves={}
+  try{claves=JSON.parse(localStorage.getItem('insightpilot_claves')||'{}')}catch(e){}
+  claves[id]=pass
+  localStorage.setItem('insightpilot_claves',JSON.stringify(claves))
+  // Actualizar select
+  cargarSelectEmpresas()
+  document.getElementById('nc-ok').style.display='block'
+  setTimeout(()=>cerrarModalNuevo(),1800)
 }
 
 function doLogout(){
@@ -431,8 +528,8 @@ function doLogout(){
 function iniciar(){
   document.getElementById('login').style.display='none'
   document.getElementById('app').style.display='block'
-  document.getElementById('h-biz').textContent=EMPRESAS[empresa]
-  document.getElementById('page-sub').textContent='Cargando datos para '+EMPRESAS[empresa]+' — Mes actual'
+  document.getElementById('h-biz').textContent=getEmpresas()[empresa]
+  document.getElementById('page-sub').textContent='Cargando datos para '+getEmpresas()[empresa]+' — Mes actual'
   // Agregar filas iniciales
   addProd();addProd();addProd()
   addCrit()
