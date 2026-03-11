@@ -126,7 +126,7 @@ h1{
 .card-top{padding:24px 24px 20px;border-bottom:1px solid var(--line)}
 .card-accent-bar{height:3px;border-radius:99px;margin-bottom:20px;width:32px}
 .card-status{display:inline-flex;align-items:center;gap:5px;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-.st-live{color:var(--ip)}
+.st-live{color:var(--ink)}
 .st-soon{color:var(--ink-dim)}
 .live-dot{width:5px;height:5px;border-radius:50%;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
@@ -290,7 +290,7 @@ footer{padding:28px 5%;border-top:1px solid var(--line);background:var(--bg);dis
     <div class="sec-label">Línea de productos</div>
     <h2 class="sec-h2">Una herramienta para cada tipo de negocio.</h2>
   </div>
-  <div class="cards">
+  <div class="cards" style="grid-template-columns:repeat(2,1fr);max-width:720px;">
 
     <div class="card rv">
       <div class="card-top">
@@ -310,79 +310,36 @@ footer{padding:28px 5%;border-top:1px solid var(--line);background:var(--bg);dis
           <div class="feat-row"><div class="feat-check" style="background:var(--ip-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#1D5CF6" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Simulador de decisiones en pesos</div>
           <div class="feat-row"><div class="feat-check" style="background:var(--ip-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#1D5CF6" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Reporte semanal + acompañamiento directo</div>
         </div>
-        <div class="card-footer">
-          <div>
-            <div class="price-from">Desde</div>
-            <div class="price-amt">USD 800 <span class="price-per">· pago único</span></div>
-          </div>
+        <div class="card-footer" style="justify-content:flex-end;">
           <a href="/insightpilot.html" target="_blank" class="cta-arrow" style="background:var(--ip)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
         </div>
       </div>
     </div>
-<div class="card rv">
-  <div class="card-top">
-    <div class="card-accent-bar" style="background:#FFD84D"></div>
-  </div>
 
-  <h3>Bellis</h3>
-
-  <p>
-    Automatiza la agenda de tu negocio.
-    Turnos online, recordatorios automáticos y cobros anticipados.
-  </p>
-
-  <a href="/bellis.html" class="card-link">
-    Ver Bellis →
-  </a>
-</div>
-    <div class="card dim rv d1">
+    <div class="card rv d1">
       <div class="card-top">
-        <div class="card-accent-bar" style="background:var(--lc)"></div>
-        <div class="card-status st-soon">Próximamente</div>
-        <div class="card-name">Nombre por definir</div>
-        <div class="card-sector">Comercios · Gastronomía · Locales</div>
-      </div>
-      <div class="card-body">
-        <p class="card-desc">Métricas simples y marketing que funciona para locales que quieren crecer sin complicarse.</p>
-        <div class="card-feats" style="opacity:.5">
-          <div class="feat-row"><div class="feat-check" style="background:var(--lc-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#0EA5A0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Métricas de ventas diarias</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--lc-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#0EA5A0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Seguimiento de campañas y redes</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--lc-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#0EA5A0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Alertas de producto estrella</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--lc-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#0EA5A0" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Reporte semanal por WhatsApp</div>
+        <div class="card-accent-bar" style="background:#F5F0C8"></div>
+        <div class="card-status st-live">
+          <span class="live-dot" style="background:#F5F0C8"></span>
+          Disponible ahora
         </div>
-        <div class="card-footer">
-          <div>
-            <div class="price-from">Precio estimado</div>
-            <div class="price-amt" style="font-size:14px;color:var(--ink-dim)">Pronto disponible</div>
-          </div>
-          <div class="cta-disabled"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#AEADA8" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card dim rv d2">
-      <div class="card-top">
-        <div class="card-accent-bar" style="background:var(--pr)"></div>
-        <div class="card-status st-soon">Próximamente</div>
-        <div class="card-name">Nombre por definir</div>
+        <div class="card-name">Bellis</div>
         <div class="card-sector">Profesionales · Estéticas · Salud</div>
       </div>
       <div class="card-body">
-        <p class="card-desc">Tu cliente agenda, paga y recibe el recordatorio solo. Automatizamos la operación para que vos te concentres en trabajar.</p>
-        <div class="card-feats" style="opacity:.5">
-          <div class="feat-row"><div class="feat-check" style="background:var(--pr-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#E6BB00" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Página personalizada con agenda</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--pr-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#E6BB00" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Integración Google Calendar</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--pr-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#E6BB00" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Cobro automático antes del turno</div>
-          <div class="feat-row"><div class="feat-check" style="background:var(--pr-tint)"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#E6BB00" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Recordatorio automático al cliente</div>
+        <p class="card-desc">Automatiza la agenda de tu negocio. Turnos online, recordatorios automáticos y cobros anticipados.</p>
+        <div class="card-feats">
+          <div class="feat-row"><div class="feat-check" style="background:#F5F0C820"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#F5F0C8" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Página personalizada con agenda</div>
+          <div class="feat-row"><div class="feat-check" style="background:#F5F0C820"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#F5F0C8" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Integración Google Calendar</div>
+          <div class="feat-row"><div class="feat-check" style="background:#F5F0C820"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#F5F0C8" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Cobro automático antes del turno</div>
+          <div class="feat-row"><div class="feat-check" style="background:#F5F0C820"><svg width="8" height="8" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="#F5F0C8" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>Recordatorio automático al cliente</div>
         </div>
-        <div class="card-footer">
-          <div>
-            <div class="price-from">Precio estimado</div>
-            <div class="price-amt" style="font-size:14px;color:var(--ink-dim)">Pronto disponible</div>
-          </div>
-          <div class="cta-disabled"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#AEADA8" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></div>
+        <div class="card-footer" style="justify-content:flex-end;">
+          <a href="/bellis.html" target="_blank" class="cta-arrow" style="background:#F5F0C8">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0F0E0D" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -408,9 +365,9 @@ footer{padding:28px 5%;border-top:1px solid var(--line);background:var(--bg);dis
       WhatsApp
     </a>
     <div class="contact-dot"></div>
-    <a href="mailto:contacto@levxintelligence.com" class="contact-item">
+    <a href="/cdn-cgi/l/email-protection#44272b2a302527302b042821323c2d2a302128282d23212a27216a272b29" class="contact-item">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      contacto@levxintelligence.com
+      <span class="__cf_email__" data-cfemail="264549485247455249664a43505e4f4852434a4a4f41434845430845494b">[email&#160;protected]</span>
     </a>
   </div>
 </section>
@@ -425,7 +382,7 @@ footer{padding:28px 5%;border-top:1px solid var(--line);background:var(--bg);dis
   </div>
   <div class="foot-links">
     <a href="/insightpilot.html" target="_blank">InsightPilot</a>
-    <a href="mailto:contacto@levxintelligence.com">Contacto</a>
+    <a href="/cdn-cgi/l/email-protection#f79498998396948398b79b92818f9e9983929b9b9e9092999492d994989a">Contacto</a>
     <a href="https://wa.me/5493853142987" target="_blank">WhatsApp</a>
   </div>
 </footer>
@@ -435,12 +392,6 @@ const io = new IntersectionObserver(es => {
   es.forEach(e => { if(e.isIntersecting) e.target.classList.add("on") })
 }, {threshold:.06})
 document.querySelectorAll(".rv").forEach(el => io.observe(el))
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener("click", e => {
-    const t = document.querySelector(a.getAttribute("href"))
-    if(t){ e.preventDefault(); t.scrollIntoView({behavior:"smooth"}) }
-  })
-})
 </script>
 </body>
 </html>
